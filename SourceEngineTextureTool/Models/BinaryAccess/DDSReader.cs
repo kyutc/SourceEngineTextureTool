@@ -63,8 +63,8 @@ public static class DdsReader
         br.ReadUInt32(); // Reserved
 
         // VTF supports a max width/height of 2^16-1 pixels (in theory)
-        valid &= width is > 0 and < 65535;
-        valid &= height is > 0 and < 65535;
+        valid &= width is > 0 and < 65536;
+        valid &= height is > 0 and < 65536;
         valid &= mipmaps == 1; // For our case, mipmaps should always be 1
         valid &= depth == 0; // For our case, depth should always be 0
         
