@@ -9,8 +9,6 @@ public class ImageConverter
         ValidateInput(inputFilePath);
 
         ExecuteImageMagickCommand("magick", $"\"{inputFilePath}\" -type TrueColorMatte \"{outputFilePath}\"");
-
-        Console.WriteLine($"PNG32 File Conversion Complete. Output File Located At: {outputFilePath}");
     }
 
     //Method which executes the ImageMagick commands automatically. Runs the magick command to convert to png32
