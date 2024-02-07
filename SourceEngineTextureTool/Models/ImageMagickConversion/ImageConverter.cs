@@ -1,58 +1,49 @@
 ﻿using System;
 using System.Diagnostics;
 
-class Program
+public class ImageConverter
 {
-    static void Main()
+    //Method to convert image to png32
+    public static void ConvertToPNG32(string inputFilePath)
     {
-        //Takes input from the user to get the file-path of the image for conversion
-        Console.WriteLine("Enter the full path of the input image file (Make sure to include the filename):");
-        string inputFilePath = Console.ReadLine();
-
-        //Checks if the location specified and file are valid
+        //Checks if input file is valid and rejects it if not
         if (string.IsNullOrWhiteSpace(inputFilePath) || !System.IO.File.Exists(inputFilePath))
         {
             Console.WriteLine("Invalid input file path or file does not exist.");
             return;
         }
-
-        //Generates the output file-path by changing the extension to "png"
+        
+        //Generates the output file
         string outputFilePath = System.IO.Path.ChangeExtension(inputFilePath, "png");
 
-        //Execute the ImageMagick command to convert the specified image to png32 format by specifying color depth
         ExecuteImageMagickCommand("magick", $"\"{inputFilePath}\" -type TrueColorMatte \"{outputFilePath}\"");
 
-        //Displays a message that the file conversion is complete
-        Console.WriteLine($"Conversion completed. Output file location: {outputFilePath}");
+        Console.WriteLine($"PNG32 File Conversion Complete. Output File Located At: {outputFilePath}");
     }
 
-    //Executes the imagemagick command
-    static void ExecuteImageMagickCommand(string command, string arguments)
+    //Method which executes the ImageMagick commands automatically. Runs the magick command to convert to png32
+    private static void ExecuteImageMagickCommand(string command, string arguments)
     {
+        //Creates a new process that uses the following configuration
         using (Process process = new Process
+               {
+                   StartInfo = new ProcessStartInfo
+                   {
+                       FileName = command,
+                       Arguments = arguments,
+                       RedirectStandardError = true,
+                       UseShellExecute = false,
+                       CreateNoWindow = true
+                   }
+               })
         {
-            StartInfo = new ProcessStartInfo
-            {
-                // Specify the command to execute, in this case the "magick" command for file conversion
-                FileName = command,
-                Arguments = arguments,
-                //Redirects errors to account for any error message
-                RedirectStandardError = true,
-                //Avoid using the system shell to execute the command
-                UseShellExecute = false,
-                //Do not create a visible window for the process
-                CreateNoWindow = true
-            }
-        })
-        {
-            
+            //Starts the previously outlined process
             process.Start();
-            //Waits for process to finish
+            //Waits for the process to finish
             process.WaitForExit();
 
-            //Reads error messages from the error stream
+            //Captures, reads, and prints any error message thrown
             string errorMessage = process.StandardError.ReadToEnd();
-            //Displays any error messages
             if (!string.IsNullOrEmpty(errorMessage))
             {
                 Console.WriteLine($"Error: {errorMessage}");
