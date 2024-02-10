@@ -2,13 +2,13 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace SourceEngineTextureTool.Models.BinaryAccess;
+namespace SourceEngineTextureTool.Models.BinaryAccess.Dds;
 
 // Struct via http://doc.51windows.net/directx9_sdk/graphics/reference/DDSFileReference/ddsfileformat.htm
 /// <summary>
 /// Read single mipmap from a DDS file.
 /// </summary>
-public static class DdsReader
+public static class Reader
 {
     /// <summary>
     /// Get image data from a DDS file.
