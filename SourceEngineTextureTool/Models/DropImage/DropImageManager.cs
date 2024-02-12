@@ -40,41 +40,83 @@ public class DropImageManager
         }
     }
     
-    private List<List<DropImage?>> _dropImages;
+    // TODO: Validation for faces/slices if we ever implement these
+    private int _faces;
+    
+    public int Faces
+    {
+        get => _faces;
+        set
+        {
+            this._faces = value;
+            UpdateCounts();
+        }
+    }
+    
+    private int _slices;
+    
+    public int Slices
+    {
+        get => _slices;
+        set
+        {
+            this._slices = value;
+            UpdateCounts();
+        }
+    }
+    
+    //In order: Mipmap, Frame, Face, Slice
+    private List<List<List<List<DropImage?>>>> _dropImages;
     private readonly DropImage _defaultImage;
     
     public DropImageManager(DropImage defaultImage)
     {
         this._defaultImage = defaultImage;
-        this._dropImages = new List<List<DropImage?>>
+        this._dropImages = new List<List<List<List<DropImage?>>>>
         {
             Capacity = 16 // Probably pointless optimisation
         };
 
         this.Mipmaps = 1;
         this.Frames = 1;
+        this.Faces = 1;
+        this.Slices = 1;
 
-        this.SetImage(1, 1, this._defaultImage);
+        this.SetImage(1, 1, 1, 1, this._defaultImage);
     }
 
-    public void SetImage(int mipmap, int frame, DropImage image)
+    public void SetImage(int mipmap, int frame, int face, int slice, DropImage image)
     {
-        this._dropImages[mipmap][frame] = image;
+        this._dropImages[mipmap][frame][face][slice] = image;
     }
 
     private void UpdateCounts()
     {
-        // Update to new mipmap count
+        // Update all mipmap counts
         CollectionsMarshal.SetCount(this._dropImages, Mipmaps);
         // Update all frame counts
         this._dropImages.ForEach(frames => CollectionsMarshal.SetCount(frames, Frames));
+        // Update all face counts
+        this._dropImages.ForEach(frames =>
+            frames.ForEach(faces =>  CollectionsMarshal.SetCount(faces, Faces)));
+        // Update all slice counts
+        this._dropImages.ForEach(frames =>
+            frames.ForEach(faces =>
+                faces.ForEach(slices => CollectionsMarshal.SetCount(slices, Slices))));
+
 
         // Lazily iterate over all elements to update any new ones with the default image
         for (int mipmap = 0; mipmap < Mipmaps; mipmap++)
         {
             for (int frame = 0; frame < Frames; frame++)
             {
-                this._dropImages[mipmap][frame] ??= this._defaultImage;
+                for (int face = 0; face < Faces; face++)
+                {
+                    for (int slice = 0; slice < Slices; slice++)
+                    {
+                        this._dropImages[mipmap][frame][face][slice] ??= this._defaultImage;
+                    }
+                }
             }
         }
     }
@@ -84,10 +126,20 @@ public class DropImageManager
     {
         bool result = true;
         
-        // TODO: Small optimisation: break out of the loop.
-        this._dropImages.ForEach(frames => 
-            frames.ForEach(frame => result &= frame != this._defaultImage)
-        );
+        for (int mipmap = 0; result && mipmap < Mipmaps; mipmap++)
+        {
+            for (int frame = 0; result && frame < Frames; frame++)
+            {
+                for (int face = 0; result && face < Faces; face++)
+                {
+                    for (int slice = 0; result && slice < Slices; slice++)
+                    {
+                        result &= this._dropImages[mipmap][frame][face][slice] != this._defaultImage;
+                    }
+                }
+            }
+        }
+        
         return result;
     }
 }
