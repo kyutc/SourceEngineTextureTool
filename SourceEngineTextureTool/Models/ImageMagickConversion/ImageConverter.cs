@@ -8,7 +8,38 @@ public class ImageConverter
     {
         ValidateInput(inputFilePath);
 
+<<<<<<< Updated upstream
         ExecuteImageMagickCommand("magick", $"\"{inputFilePath}\" -type TrueColorMatte \"{outputFilePath}\"");
+=======
+        //Builds the ImageMagick command based on parameters
+        //Appends the parameters to the command with new values if they are updated, otherwise uses defaults
+        string magickCommand = "convert";
+        string magickArguments = $"\"{inputFilePath}\"";
+
+        if (autoCrop)
+        {
+            magickArguments += " -auto-crop";
+        }
+
+        if (scalePercent != 100)
+        {
+            magickArguments += $" -resize {scalePercent}%";
+        }
+
+        if (framesToProcess > 1)
+        {
+            magickArguments += $" -coalesce -layers OptimizeTransparency -dispose Background";
+        }
+
+        if (!string.IsNullOrEmpty(compositeImage))
+        {
+            magickArguments += $" \"{compositeImage}\" -composite";
+        }
+
+        magickArguments += $" -type TrueColorMatte \"{outputFilePath}\"";
+
+        ExecuteImageMagickCommand(magickCommand, magickArguments);
+>>>>>>> Stashed changes
     }
 
     //Method which executes the ImageMagick commands automatically. Runs the magick command to convert to png32
