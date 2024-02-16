@@ -3,14 +3,11 @@ using System.Diagnostics;
 
 public class ImageConverter
 {
-    //Method to convert image to png32
-    public static void ConvertToPNG32(string inputFilePath, string outputFilePath)
+    //Method to convert image to png32 with all optional parameters
+    public static void ConvertToPNG32(string inputFilePath, string outputFilePath, bool autoCrop = false, int resizeWidth = 0, int resizeHeight = 0, int framesToProcess = 1, string compositeImage = null)
     {
         ValidateInput(inputFilePath);
 
-<<<<<<< Updated upstream
-        ExecuteImageMagickCommand("magick", $"\"{inputFilePath}\" -type TrueColorMatte \"{outputFilePath}\"");
-=======
         //Builds the ImageMagick command based on parameters
         //Appends the parameters to the command with new values if they are updated, otherwise uses defaults
         string magickCommand = "convert";
@@ -21,9 +18,9 @@ public class ImageConverter
             magickArguments += " -auto-crop";
         }
 
-        if (scalePercent != 100)
+        if (resizeWidth > 0 && resizeHeight > 0)
         {
-            magickArguments += $" -resize {scalePercent}%";
+            magickArguments += $" -resize {resizeWidth}x{resizeHeight}";
         }
 
         if (framesToProcess > 1)
@@ -39,15 +36,13 @@ public class ImageConverter
         magickArguments += $" -type TrueColorMatte \"{outputFilePath}\"";
 
         ExecuteImageMagickCommand(magickCommand, magickArguments);
->>>>>>> Stashed changes
     }
 
-    //Method which executes the ImageMagick commands automatically. Runs the magick command to convert to png32
+    //Method to execute the ImageMagick commands automatically
     private static void ExecuteImageMagickCommand(string command, string arguments)
     {
         try
         {
-            //Creates a new process that uses the following configuration
             using (Process process = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -60,9 +55,7 @@ public class ImageConverter
                 }
             })
             {
-                //Starts the previously outlined process
                 process.Start();
-                //Waits for the process to finish
                 process.WaitForExit();
 
                 string errorMessage = process.StandardError.ReadToEnd();
@@ -74,7 +67,6 @@ public class ImageConverter
         }
         catch (Exception ex)
         {
-            //Handles exceptions or rethrows them with a message
             throw new Exception("ImageMagick command execution failed.", ex);
         }
     }
