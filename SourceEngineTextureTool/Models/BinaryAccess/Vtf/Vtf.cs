@@ -1,11 +1,9 @@
 using System;
 using System.IO;
+using System.Linq;
 
 namespace SourceEngineTextureTool.Models.BinaryAccess.Vtf;
 
-// TODO: Dimorphism for VTF version 7.3+. Should a new parent abstract class be used?
-// Could implement methods ex. DepthPadding which will add the necessary bytes depending on which VTF version it's being
-// used in.
 public abstract class Vtf
 {
     public abstract (uint Major, uint Minor) Version { get; }
@@ -26,7 +24,15 @@ public abstract class Vtf
     public byte[] HighResData { get; set; }
 
     protected abstract void MakeHeader(ref BinaryWriter bw);
-    protected abstract void PadHeader(ref BinaryWriter bw);
+
+    protected void PadHeader(ref BinaryWriter bw)
+    {
+        // Header must be 16-byte aligned
+        int remainder = (int)bw.BaseStream.Position % 16;
+
+        if (remainder > 0)
+            bw.Write(Enumerable.Repeat((byte)0, 16 - remainder).ToArray());
+    }
 }
 
 // TODO: Where should these values be defined at?
