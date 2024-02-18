@@ -4,7 +4,7 @@ using System.Diagnostics;
 public class ImageConverter
 {
     //Method to convert image to png32 with all optional parameters
-    public static void ConvertToPNG32(string inputFilePath, string outputFilePath, bool autoCrop = false, int resizeWidth = 0, int resizeHeight = 0, int framesToProcess = 1, string compositeImage = null)
+    public static void ConvertToPNG32(string inputFilePath, string outputFilePath, bool autoCrop = false, int resizeWidth = 0, int resizeHeight = 0, int framesToProcess = 1, string compositeHexColor = null, int compositeTransparency = 100)
     {
         ValidateInput(inputFilePath);
 
@@ -28,9 +28,9 @@ public class ImageConverter
             magickArguments += $" -coalesce -layers OptimizeTransparency -dispose Background";
         }
 
-        if (!string.IsNullOrEmpty(compositeImage))
+        if (!string.IsNullOrEmpty(compositeHexColor))
         {
-            magickArguments += $" \"{compositeImage}\" -composite";
+            magickArguments += $" -fill \"rgba({HexToRGBA(compositeHexColor)},{compositeTransparency}%)\" -colorize 100%";
         }
 
         magickArguments += $" -type TrueColorMatte \"{outputFilePath}\"";
