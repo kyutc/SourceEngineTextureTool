@@ -41,7 +41,7 @@ public class Writer : v72.Writer
         NO_DATA = 0x02,
     }
 
-    public void WriteOut(string file)
+    public new void WriteOut(string file)
     {
         var handle = GetFileHandle(file);
         BinaryWriter bw = new BinaryWriter(handle);
