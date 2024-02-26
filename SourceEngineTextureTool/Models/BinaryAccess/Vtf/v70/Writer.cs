@@ -57,11 +57,4 @@ public class Writer : Vtf
         bw.Write(LowResWidth);
         bw.Write(LowResHeight);
     }
-
-    protected override void PadHeader(ref BinaryWriter bw)
-    {
-        // 16-byte alignment header padding
-        // 63 + 1 = 64; 64 % 16 = 0
-        bw.Write((byte)0);
-    }
 }
