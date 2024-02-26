@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace SourceEngineTextureTool.Models.BinaryAccess.Vtf.v73;
+namespace SourceEngineTextureTool.Services.BinaryAccess.Vtf.v73;
 
 public class Writer : v72.Writer
 {

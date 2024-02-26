@@ -1,4 +1,4 @@
-namespace SourceEngineTextureTool.Models.BinaryAccess.Vtf.v75;
+namespace SourceEngineTextureTool.Services.BinaryAccess.Vtf.v75;
 
 public class Writer : v74.Writer
 {

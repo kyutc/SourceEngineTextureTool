@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace SourceEngineTextureTool.Models.BinaryAccess.Dds;
+namespace SourceEngineTextureTool.Services.BinaryAccess.Dds;
 
 // Struct via http://doc.51windows.net/directx9_sdk/graphics/reference/DDSFileReference/ddsfileformat.htm
 /// <summary>

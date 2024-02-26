@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 
-namespace SourceEngineTextureTool.Models.BinaryAccess.Vtf;
+namespace SourceEngineTextureTool.Services.BinaryAccess.Vtf;
 
 public abstract class Vtf
 {

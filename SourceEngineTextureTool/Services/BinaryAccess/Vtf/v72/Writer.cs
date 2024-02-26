@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace SourceEngineTextureTool.Models.BinaryAccess.Vtf.v72;
+namespace SourceEngineTextureTool.Services.BinaryAccess.Vtf.v72;
 
 public class Writer : v71.Writer
 {

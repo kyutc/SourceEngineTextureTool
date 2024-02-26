@@ -1,4 +1,4 @@
-using SourceEngineTextureTool.Models.BinaryAccess.Vtf;
+using SourceEngineTextureTool.Services.BinaryAccess.Vtf;
 
 namespace SourceEngineTextureTool.Models.Settings;
 
