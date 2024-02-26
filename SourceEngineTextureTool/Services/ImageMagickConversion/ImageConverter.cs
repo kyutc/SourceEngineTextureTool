@@ -30,7 +30,8 @@ public class ImageConverter
 
         if (!string.IsNullOrEmpty(compositeHexColor))
         {
-            magickArguments += $" -fill \"rgba({HexToRGBA(compositeHexColor)},{compositeTransparency}%)\" -colorize 100%";
+            throw new NotImplementedException();
+            //magickArguments += $" -fill \"rgba({HexToRGBA(compositeHexColor)},{compositeTransparency}%)\" -colorize 100%";
         }
 
         magickArguments += $" -type TrueColorMatte \"{outputFilePath}\"";
