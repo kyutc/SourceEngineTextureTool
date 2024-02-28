@@ -4,7 +4,7 @@ using System.Diagnostics;
 public class ImageConverter
 {
     //Method to convert image to png32 with all optional parameters
-    public static void ConvertToPNG32(string inputFilePath, string outputFilePath, bool autoCrop = false, int resizeWidth = 0, int resizeHeight = 0, int framesToProcess = 1, string compositeHexColor = null, int compositeTransparency = 100)
+    public static void ConvertToPNG32(string inputFilePath, string outputFilePath, bool autoCrop = false, int resizeWidth = 0, int resizeHeight = 0, int framesToProcess = 1, byte compositeR = 0, byte compositeG = 0, byte compositeB = 0, byte compositeA = 0)
     {
         ValidateInput(inputFilePath);
 
@@ -28,10 +28,14 @@ public class ImageConverter
             magickArguments += $" -coalesce -layers OptimizeTransparency -dispose Background";
         }
 
-        if (!string.IsNullOrEmpty(compositeHexColor))
+        if (compositeR != 0 || compositeG != 0 || compositeB != 0 || compositeA != 0)
         {
-            throw new NotImplementedException();
-            //magickArguments += $" -fill \"rgba({HexToRGBA(compositeHexColor)},{compositeTransparency}%)\" -colorize 100%";
+            //Concatenate R, G, B, and A into a single int32 using bit-shift operations
+            int compositeColor = (compositeR << 24) | (compositeG << 16) | (compositeB << 8) | compositeA;
+
+            //Convert the int32 to hexadecimal and prepend a hashtag
+            string hexColor = compositeColor.ToString("X");
+            magickArguments += $" -fill \"#{hexColor}\" -colorize 100%";
         }
 
         magickArguments += $" -type TrueColorMatte \"{outputFilePath}\"";
