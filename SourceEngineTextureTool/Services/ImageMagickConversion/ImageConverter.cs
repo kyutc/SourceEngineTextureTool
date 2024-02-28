@@ -28,15 +28,14 @@ public class ImageConverter
             magickArguments += $" -coalesce -layers OptimizeTransparency -dispose Background";
         }
 
-        if (compositeR != 0 || compositeG != 0 || compositeB != 0 || compositeA != 0)
-        {
-            //Concatenate R, G, B, and A into a single int32 using bit-shift operations
-            int compositeColor = (compositeR << 24) | (compositeG << 16) | (compositeB << 8) | compositeA;
+        
+        //Concatenate R, G, B, and A into a single int32 using bit-shift operations
+        int compositeColor = (compositeR << 24) | (compositeG << 16) | (compositeB << 8) | compositeA;
 
-            //Convert the int32 to hexadecimal and prepend a hashtag
-            string hexColor = compositeColor.ToString("X");
-            magickArguments += $" -fill \"#{hexColor}\" -colorize 100%";
-        }
+        //Convert the int32 to hexadecimal and prepend a hashtag
+        string hexColor = compositeColor.ToString("X8");
+        magickArguments += $" -fill \"#{hexColor}\" -colorize 100%";
+        
 
         magickArguments += $" -type TrueColorMatte \"{outputFilePath}\"";
 
