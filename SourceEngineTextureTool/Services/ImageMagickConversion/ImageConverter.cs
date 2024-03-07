@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using SourceEngineTextureTool.Services;
 
 public class ImageConverter
 {
@@ -10,7 +11,6 @@ public class ImageConverter
 
         //Builds the ImageMagick command based on parameters
         //Appends the parameters to the command with new values if they are updated, otherwise uses defaults
-        string magickCommand = "convert";
         string magickArguments = $"\"{inputFilePath}\"";
 
         if (autoCrop)
@@ -39,40 +39,32 @@ public class ImageConverter
 
         magickArguments += $" -type TrueColorMatte \"{outputFilePath}\"";
 
-        ExecuteImageMagickCommand(magickCommand, magickArguments);
+        var commandExecuted = ExecuteImageMagickCommand(ExternalDependencyManager.imagemagick, magickArguments);
+
+        if (!commandExecuted)
+        {
+            throw new Exception("ImageMagick command execution failed.");
+        }
     }
-
-    //Method to execute the ImageMagick commands automatically
-    private static void ExecuteImageMagickCommand(string command, string arguments)
+    
+    private static bool ExecuteImageMagickCommand(string command, string arguments)
     {
-        try
+        var processInfo = new ProcessStartInfo()
         {
-            using (Process process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = command,
-                    Arguments = arguments,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }
-            })
-            {
-                process.Start();
-                process.WaitForExit();
+            FileName = command,
+            Arguments = arguments,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
 
-                string errorMessage = process.StandardError.ReadToEnd();
-                if (!string.IsNullOrEmpty(errorMessage))
-                {
-                    throw new Exception($"Error: {errorMessage}");
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            throw new Exception("ImageMagick command execution failed.", ex);
-        }
+        Process? e = Process.Start(processInfo);
+
+        if (e == null) return false;
+        e.WaitForExit();
+
+        return e.ExitCode == 0;
+
     }
 
     //Checks if input file is valid and rejects it if not
