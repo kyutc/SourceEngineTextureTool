@@ -6,8 +6,8 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="SourceEngineTextureTool.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="AvaloniaApplication1">
+        Icon="/Assets/SETTLogo.ico"
+        Title="Source Engine Texture Tool">
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
@@ -16,5 +16,144 @@
     </Design.DataContext>
 
     <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <SplitView Grid.Row="1" IsPaneOpen="True" DisplayMode="Inline" OpenPaneLength="300">
+
+            <!-- Sidebar container -->
+            <SplitView.Pane>
+                <!-- Sidebar -->
+                <!-- Todo: resize pane length to widest child or wrap sidebar with viewbox -->
+                <Grid Classes="SideBar" RowDefinitions="Auto,Auto,*">
+
+                    <!-- Sidebar styles -->
+                    <Grid.Styles>
+                        <Style Selector="Grid > Border">
+                            <Setter Property="BorderThickness" Value="1" />
+                            <Setter Property="BorderBrush" Value="#2b2b2b"></Setter>
+                            <Setter Property="Padding" Value="10 5" />
+                        </Style>
+
+                        <Style Selector="Button">
+                            <Setter Property="FontSize" Value="20"></Setter>
+                            <Setter Property="Foreground" Value="#f6f6f6" />
+                            <Setter Property="Padding" Value="10 5" />
+                            <Setter Property="HorizontalAlignment" Value="Stretch" />
+                            <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
+                        </Style>
+                        <Style Selector="Button#Export">
+                            <Setter Property="Background" Value="#ce2bff" />
+                        </Style>
+                        <Style Selector="Button#Preview">
+                            <Setter Property="Background" Value="#6b008b" />
+                        </Style>
+                        <Style Selector="Label">
+                            <Setter Property="Foreground" Value="#f6f6f6"></Setter>
+                        </Style>
+                    </Grid.Styles>
+
+                    <!-- Texture properties -->
+                    <Border Grid.Row="0">
+                        <StackPanel>
+                            <ComboBox></ComboBox>
+
+                            <Grid ColumnDefinitions="*,*">
+                                <StackPanel Grid.Column="0">
+                                    <Label Content="Frames" />
+                                    <NumericUpDown Value="{Binding FrameCount}"
+                                                   Minimum="0" Maximum="255"
+                                                   Increment="1"
+                                                   ParsingNumberStyle="Integer" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <Label Content="Mipmaps" />
+                                    <Label Content="{Binding MipmapCount}" />
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Export Actions -->
+                    <Border Grid.Row="1">
+                        <Grid ColumnDefinitions="*,*">
+                            <Button Grid.Column="0" Name="Preview" Content="Preview" />
+                            <Button Grid.Column="1" Name="Export" Content="Export" />
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Row="2">
+                        <TabControl>
+                            <!-- Texture settings Todo: Set the width of the combobox to the width of the (open) popup w/ the greatest width -->
+                            <TabItem Header="Settings">
+                                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto">
+
+                                    <!-- VTF Version Selector -->
+                                    <Label Grid.Column="0" Grid.Row="0" Content="VTF Version:" />
+                                    <ComboBox Grid.Column="1" Grid.Row="0" ItemsSource="{Binding SupportedVTFVersions}"
+                                              SelectedItem="{Binding SelectedVTFVersion}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding }" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+
+                                    <!-- Image format -->
+                                    <Label Grid.Column="0" Grid.Row="1" Content="Image Format:" />
+                                    <ComboBox Grid.Column="1" Grid.Row="1"
+                                              ItemsSource="{Binding SupportedVTFImageFormats}"
+                                              SelectedItem="{Binding SelectedVTFImageFormat}"
+                                              MaxDropDownHeight="300">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding }" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+
+                                    <!-- Image scale algorithm -->
+                                    <Label Grid.Column="0" Grid.Row="2" Content="Scaling Algorithm: " />
+                                    <ComboBox Grid.Column="1" Grid.Row="2"
+                                              ItemsSource="{Binding  SupportedScaleAlgorithms}"
+                                              SelectedItem="{Binding SelectedScaleAlgorithm}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+
+                                    <!-- Image scale mode -->
+                                    <Label Grid.Column="0" Grid.Row="3" Content="Scale Mode:" />
+                                    <ComboBox Grid.Column="1" Grid.Row="3"
+                                              ItemsSource="{Binding  SupportedScaleModes}"
+                                              SelectedItem="{Binding SelectedScaleMode}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </Grid>
+                            </TabItem>
+
+                            <TabItem Header="Flags">
+                                <!-- Optional VTF Flags Bug: SelectionMode reverts to Single.-->
+                                <ListBox ItemsSource="{Binding OptionalVTFFlags}"
+                                         SelectionMode="Multiple,Toggle"
+                                         Selection="{Binding SelectedFlags}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}" />
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </TabItem>
+                        </TabControl>
+                    </Border>
+                </Grid>
+            </SplitView.Pane>
+
+        </SplitView>
+
+    </Grid>
 
 </Window>
