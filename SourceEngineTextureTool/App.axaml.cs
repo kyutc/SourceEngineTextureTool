@@ -1,11 +1,15 @@
+using System;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Microsoft.Extensions.DependencyInjection;
+using SourceEngineTextureTool.Services.IO;
 using SourceEngineTextureTool.ViewModels;
 using SourceEngineTextureTool.Views;
 
 namespace SourceEngineTextureTool;
-public partial class App : Application
+
+public class App : Application
 {
     public override void Initialize()
     {
@@ -20,8 +24,25 @@ public partial class App : Application
             {
                 DataContext = new MainWindowViewModel(),
             };
+
+            var services = new ServiceCollection();
+
+            services.AddSingleton<IFileDialogService>(x => new FileDialogService(desktop.MainWindow));
+
+            Services = services.BuildServiceProvider();
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    public static IServiceProvider Services { get; private set; }
+
+    public static T FetchService<T>()
+    {
+        var serviceProvider = Services ??
+                              throw new NullReferenceException(
+                                  $"Method invoked before property {nameof(Services)} was initialized.");
+        return serviceProvider.GetService<T>() ??
+               throw new NullReferenceException($"{typeof(T)} service not registered.");
     }
 }
