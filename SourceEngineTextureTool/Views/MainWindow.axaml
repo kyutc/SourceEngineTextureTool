@@ -12,10 +12,47 @@
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainWindowViewModel/>
+        <vm:MainWindowViewModel />
     </Design.DataContext>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Window.Styles>
+        <Style Selector="Menu.MenuBar">
+            <Setter Property="Background" Value="#585858" />
+        </Style>
+        <Style Selector="Grid.SideBar">
+            <Setter Property="Background" Value="#1c1c1c" />
+        </Style>
+
+    </Window.Styles>
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Menu bar -->
+        <Menu Classes="MenuBar" Grid.Row="0">
+            <Menu.Styles>
+                <Style Selector="MenuItem">
+                    <Setter Property="Foreground" Value="White" />
+                </Style>
+                <Style Selector="MenuItem > Popup">
+                </Style>
+                <Style Selector="MenuItem MenuItem">
+                    <Setter Property="Background" Value="#353535" />
+                </Style>
+            </Menu.Styles>
+            <MenuItem Header="File">
+                <MenuItem Header="New" />
+                <Separator />
+                <MenuItem Header="Exit" />
+            </MenuItem>
+            <MenuItem Header="View">
+                <MenuItem Header="Preview" />
+            </MenuItem>
+            <MenuItem Header="Help">
+                <MenuItem Header="About" />
+                <MenuItem Header="Help" />
+            </MenuItem>
+        </Menu>
+
+        <!-- Main content -->
         <SplitView Grid.Row="1" IsPaneOpen="True" DisplayMode="Inline" OpenPaneLength="300">
 
             <!-- Sidebar container -->
