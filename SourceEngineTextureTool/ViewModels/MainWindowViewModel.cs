@@ -1,8 +1,12 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
+using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using SourceEngineTextureTool.Models;
 using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Controls.Selection;
+using DynamicData;
 using EnumsNET;
 using VTFFlags = SourceEngineTextureTool.Services.BinaryAccess.Vtf.Flags;
 using VTFFormat = SourceEngineTextureTool.Services.BinaryAccess.Vtf.Format;
@@ -108,5 +112,17 @@ public class MainWindowViewModel : ViewModelBase
         SelectedScaleMode = ScaleMode.Fill;
 
         #endregion Default Output Settings
+
+        this.WhenAnyValue(mwvm => mwvm.TextureResolution)
+            .Subscribe(resolution =>
+            {
+                Texture.Resolution = resolution;
+                MipmapCount = Texture.Mipmaps.Count();
+                Mipmaps.Clear();
+                Mipmaps.AddRange(Texture.Mipmaps);
+            });
+
+        this.WhenAnyValue(mwvm => mwvm.FrameCount)
+            .Subscribe(frameCount => { Texture.FrameCount = Convert.ToByte(frameCount); });
     }
 }
