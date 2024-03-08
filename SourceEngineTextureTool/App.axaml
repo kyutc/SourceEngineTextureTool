@@ -12,4 +12,13 @@
     <Application.Styles>
         <FluentTheme />
     </Application.Styles>
+            
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://SourceEngineTextureTool/Themes/DropImageStyles.axaml" />
+                <ResourceInclude Source="avares://SourceEngineTextureTool/Themes/TextureWorkspaceStyles.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
 </Application>

@@ -1,0 +1,73 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="using:SourceEngineTextureTool.Controls"
+                    xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia">
+
+    <Design.PreviewWith>
+        <Grid RowDefinitions="Auto,Auto">
+            <Border Grid.Row="0" Background="Pink" Width="200" Height="200">
+                <!-- Source set, button hidden -->
+                <controls:DropImageControl Source="/Assets/Debugempty.png" />
+            </Border>
+            <Border Grid.Row="1" Background="Cyan" Width="200" Height="200">
+                <!-- Source unset, button visible -->
+                <controls:DropImageControl />
+            </Border>
+        </Grid>
+    </Design.PreviewWith>
+
+    <ControlTheme x:Key="{x:Type controls:DropImageControl}" TargetType="controls:DropImageControl">
+        <ControlTheme.Resources>
+            <SvgImage x:Key="ImportGlyph" Source="/Assets/import-svgrepo-com.svg" />
+            <SvgImage x:Key="KebabGlyph" Source="/Assets/kebab-svgrepo-com.svg" />
+            <Image x:Key="ImportDecal"></Image>
+        </ControlTheme.Resources>
+        
+        <!-- Image loaded -->
+        <Style Selector="^:hasimage">
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <!-- Using grid for lack of a better option -->
+                    <Panel>
+                        <asyncImageLoader:AdvancedImage x:Name="PART_Image"
+                                                        Source="{TemplateBinding Source}"
+                                                        Height="{TemplateBinding Height}"
+                                                        Width="{TemplateBinding Width}">
+                        </asyncImageLoader:AdvancedImage>
+
+                        <Button x:Name="PART_Button"
+                                HorizontalAlignment="Right" VerticalAlignment="Top">
+                            <Image Source="{StaticResource KebabGlyph}" Width="30" Height="30" />
+                        </Button>
+                    </Panel>
+                </ControlTemplate>
+            </Setter>
+
+            <Style Selector="^:not(:pointerover) Button#PART_Button">
+                <Setter Property="IsVisible" Value="False" />
+            </Style>
+        </Style>
+
+        <!-- Awaiting image -->
+        <Style Selector="^:not(:hasimage)">
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Panel>
+                        <asyncImageLoader:AdvancedImage x:Name="PART_Image"
+                                                        IsVisible="False"
+                                                        Source="{TemplateBinding Source}">
+                        </asyncImageLoader:AdvancedImage>
+
+                        <Button x:Name="PART_Button"
+                                Background="Transparent"
+                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                            <Image Source="{StaticResource ImportGlyph}" Width="30" Height="30" />
+                        </Button>
+                    </Panel>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+    </ControlTheme>
+
+</ResourceDictionary>
