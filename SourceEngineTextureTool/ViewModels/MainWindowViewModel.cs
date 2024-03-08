@@ -1,4 +1,6 @@
-﻿using ReactiveUI.Fody.Helpers;
+﻿using System.Collections.ObjectModel;
+using ReactiveUI.Fody.Helpers;
+using SourceEngineTextureTool.Models;
 using System.Collections.Generic;
 using Avalonia.Controls.Selection;
 using EnumsNET;
@@ -12,9 +14,6 @@ namespace SourceEngineTextureTool.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase
 {
-#pragma warning disable CA1822 // Mark members as static
-    public string Greeting => "Welcome to Avalonia!";
-#pragma warning restore CA1822 // Mark members as static
     #region Export Properties
 
     /// <summary>
@@ -58,6 +57,9 @@ public class MainWindowViewModel : ViewModelBase
     public IReadOnlyList<VTFFlags> OptionalVTFFlags { get; } = Enums.GetValues<VTFFlags>();
 
     #endregion Export Properties
+
+    public Texture Texture;
+
     /// <summary>
     /// Gets/sets the <see cref="Resolution"/> of this instance's <see cref="Texture"/>.
     /// </summary>
@@ -82,8 +84,21 @@ public class MainWindowViewModel : ViewModelBase
     /// </summary>
     [Reactive]
     public bool GenerateMipmaps { get; set; }
+
+    [Reactive] public ObservableCollection<Mipmap> Mipmaps { get; set; }
+
     public MainWindowViewModel()
     {
+        // Default values
+        Resolution defaultResolution = new Resolution(1024, 1024);
+        byte defaultFrameCount = 1;
+
+        Texture = new Texture(defaultResolution, defaultFrameCount);
+        TextureResolution = Texture.Resolution;
+        FrameCount = Texture.FrameCount;
+        Mipmaps = new();
+        GenerateMipmaps = true;
+
         #region Default Output Settings
 
         GenerateMipmaps = true;
