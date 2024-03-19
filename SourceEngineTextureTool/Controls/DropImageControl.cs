@@ -46,32 +46,14 @@ public partial class DropImageControl : TemplatedControl
 
     public bool HasImage => Classes.Contains(PC_HasImage);
 
-    #region Direct Properties
-
-    // public static readonly DirectProperty<TextureWorkspaceControl, Resolution?> ResolutionProperty =
-    //     AvaloniaProperty.RegisterDirect<TextureWorkspaceControl, Resolution?>(
-    //         nameof(Resolution),
-    //         twc => 
-    //         );
-
-    public Resolution? Resolution
-    {
-        get => _resolution;
-        set => _resolution = value;
-    }
-
-    private Resolution? _resolution;
-        
-    #endregion
-    
     #region Source Shared Styled Property
 
     /// <summary>
     /// Defines the <see cref="AdvancedImage.SourceProperty"/>
     /// </summary>
     public static readonly StyledProperty<string?> SourceProperty =
-        AdvancedImage.SourceProperty.AddOwner<TextureWorkspaceControl>();
-    
+        AdvancedImage.SourceProperty.AddOwner<DropImageControl>();
+
     /// <summary>
     /// Synonymous with the template part<see cref="TP_Image"/>'s Source property
     /// </summary>
@@ -80,7 +62,7 @@ public partial class DropImageControl : TemplatedControl
         get => GetValue(SourceProperty);
         set => SetValue(SourceProperty, value);
     }
-    
+
     #endregion Source Shared Styled Property
 
     #region Command Shared Styled Property
@@ -101,14 +83,15 @@ public partial class DropImageControl : TemplatedControl
     }
 
     #endregion Command Shared Styled Property
-    
+
     #region Events
-    
+
     /// <summary>
     /// Defines the <see cref="SourceChanged"/> event.
     /// </summary>
     public static readonly RoutedEvent<SourceChangedEventArgs> SourceChangedEvent =
-        RoutedEvent.Register<FileDialogService, SourceChangedEventArgs>(nameof(SourceChanged), RoutingStrategies.Bubble);
+        RoutedEvent.Register<FileDialogService, SourceChangedEventArgs>(nameof(SourceChanged),
+            RoutingStrategies.Bubble);
 
     /// <summary>
     /// Raised when a file is imported
@@ -120,7 +103,7 @@ public partial class DropImageControl : TemplatedControl
     }
 
     #endregion Events
-    
+
     public DropImageControl()
         : this(null)
     {
@@ -136,7 +119,7 @@ public partial class DropImageControl : TemplatedControl
 
     public Button? Button;
     public AdvancedImage? Image;
-    
+
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         base.OnApplyTemplate(e);
@@ -174,25 +157,26 @@ public partial class DropImageControl : TemplatedControl
             }
         }
     }
-    
+
     #endregion Overrides
 
     [RelayCommand]
     private Task OpenImageFileDialog()
     {
         var fileDialogService = App.FetchService<IFileDialogService>() ??
-                                     throw new Exception("FileDialogService not found.");
+                                throw new Exception("FileDialogService not found.");
 
         return Dispatcher.UIThread.InvokeAsync(async () =>
         {
             var file = await fileDialogService.OpenImageFileDialogAsync();
             if (file is null) return;
-            
-            var path = Path.GetRelativePath(Directory.GetCurrentDirectory(), file.Path.AbsolutePath); //new Uri(Directory.GetCurrentDirectory()).MakeRelativeUri(file.Path)
+
+            var path = Path.GetRelativePath(Directory.GetCurrentDirectory(),
+                file.Path.AbsolutePath); //new Uri(Directory.GetCurrentDirectory()).MakeRelativeUri(file.Path)
             UpdateImage(path);
         });
     }
-    
+
     /// <summary>
     /// 
     /// </summary>
@@ -248,7 +232,7 @@ public partial class DropImageControl : TemplatedControl
     //     
     //     Console.WriteLine($"Result of DragDrop operation on {GetType().FullName}: {result}");
     // }
-    
+
     // private void DragOver(object? sender, DragEventArgs e)
     // {
     //     Console.WriteLine("Dragging over");
@@ -259,7 +243,7 @@ public partial class DropImageControl : TemplatedControl
     //         e.DragEffects &= DragDropEffects.Copy;
     //     // }
     // }
-    
+
     // private void Drop(object? sender, DragEventArgs e)
     // {
     //     Console.WriteLine($"Dropping over {sender}");
@@ -274,5 +258,4 @@ public partial class DropImageControl : TemplatedControl
     //         UpdateImage(e.Data.GetText());
     //     }
     // }
-    
 }
