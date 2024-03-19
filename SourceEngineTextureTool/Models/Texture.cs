@@ -7,7 +7,6 @@ namespace SourceEngineTextureTool.Models;
 
 /// <summary>
 /// Represents a texture.
-/// Todo: Method for scaling texture resolution while preserving existing mipmap order.
 /// Todo: Is framerate property needed?
 /// </summary>
 public class Texture
@@ -38,7 +37,7 @@ public class Texture
     /// Get/set the number of frames this texture has
     /// </summary>
     /// <exception cref="ArgumentException"></exception>
-    public byte FrameCount
+    public ushort FrameCount
     {
         get => _frameCount;
         set
@@ -55,13 +54,13 @@ public class Texture
         }
     }
 
-    private byte _frameCount;
+    private ushort _frameCount;
 
-    public Texture(Resolution resolution, byte frameCount = 1) : this(resolution.Width, resolution.Height, frameCount)
+    public Texture(Resolution resolution, ushort frameCount = 1) : this(resolution.Width, resolution.Height, frameCount)
     {
     }
 
-    public Texture(int width, int height, byte frameCount = 1)
+    public Texture(int width = 512, int height = 512, ushort frameCount = 1)
     {
         _frameCount = frameCount;
         Resolution = new Resolution(width, height);
@@ -73,19 +72,10 @@ public class Texture
     {
         // If the new resolution is the same 
         if (newResolution == _resolution) return;
-        
-        // Check that the new resolution is a valid resolution for a texture
-        if (
-            !((newResolution.Width != 0) && ((newResolution.Width & (newResolution.Width - 1)) == 0)) ||
-            !((newResolution.Height != 0) && ((newResolution.Height & (newResolution.Height - 1)) == 0)))
-        {
-            // Width or height is not a square of 2
-            throw new ArgumentException($"{newResolution.Width}x{newResolution.Height} is not a valid resolution!");
-        }
 
         Resolution oldResolution = _resolution;
         _resolution = newResolution;
-        
+
         // Check if the new resolution is a smaller scalar of the old one.
         // If so, truncate the list.
         {

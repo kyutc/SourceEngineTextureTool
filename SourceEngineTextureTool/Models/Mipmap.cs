@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace SourceEngineTextureTool.Models;
 
@@ -10,50 +9,51 @@ namespace SourceEngineTextureTool.Models;
 public class Mipmap
 {
     private Resolution _resolution;
-    private List<Frame> _frames;
-    private byte _frameCount;
 
     public Resolution Resolution
     {
         get => _resolution;
     }
-    
-    public DropImage.DropImage[] Frames
+
+    public IEnumerable<Frame> Frames
     {
-        get => _frames.Select(frame => frame.DropImage).ToArray();
+        get => _frames;
     }
 
-    public byte FrameCount
+    private readonly List<Frame> _frames;
+
+    public ushort FrameCount
     {
-        get => _frameCount;
+        get => (ushort)_frames.Count;
         set
         {
             if (value == 0)
             {
                 throw new ArgumentException($"Mipmap must contain at least 1 frame. Value provided: {{{value}}}");
             }
-            _frameCount = value;
-            _UpdateFrames();
+
+            _UpdateFrames(value);
         }
     }
 
-    public Mipmap(Resolution resolution, byte frameCount = 1)
+    public Mipmap(Resolution resolution, ushort frameCount = 1)
     {
         _resolution = resolution;
-        _frames = new ();
+        _frames = new();
         FrameCount = frameCount;
     }
-    
-    private void _UpdateFrames()
+
+    private void _UpdateFrames(ushort newFrameCount)
     {
-        if (_frames.Count > _frameCount)
+        if (_frames.Count > newFrameCount)
         {
-            _frames.RemoveRange(_frameCount, _frames.Count - _frameCount);
+            _frames.RemoveRange(newFrameCount, _frames.Count - newFrameCount);
             return;
         }
-        while (_frames.Count < _frameCount)
+
+        while (_frames.Count < newFrameCount)
         {
-            _frames.Add(new ());
+            _frames.Add(new((ushort)_frames.Count));
         }
     }
 }
