@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
+﻿using ReactiveUI.Fody.Helpers;
 using SourceEngineTextureTool.Models;
 using System.Collections.Generic;
-using System.Linq;
 using Avalonia.Controls.Selection;
-using DynamicData;
 using EnumsNET;
 using VTFFlags = SourceEngineTextureTool.Services.BinaryAccess.Vtf.Flags;
 using VTFFormat = SourceEngineTextureTool.Services.BinaryAccess.Vtf.Format;
@@ -62,34 +57,7 @@ public class MainWindowViewModel : ViewModelBase
 
     #endregion Export Properties
 
-    public Texture Texture;
-
-    /// <summary>
-    /// Gets/sets the <see cref="Resolution"/> of this instance's <see cref="Texture"/>.
-    /// </summary>
-    [Reactive]
-    public Resolution TextureResolution { get; set; }
-
-    /// <summary>
-    /// Gets/sets the number of frames in this instance's <see cref="Texture"/>.
-    /// </summary>
-    [Reactive]
-    public int FrameCount { get; set; }
-
-    /// <summary>
-    /// Gets the number of mipmap levels this texture has.
-    /// </summary>
-    [Reactive]
-    public int MipmapCount { get; set; }
-
-    /// <summary>
-    /// Todo: If this is false, the view should only have access to the first mipmap.
-    /// Gets/sets whether this texture should have mipmaps past order 0.
-    /// </summary>
-    [Reactive]
-    public bool GenerateMipmaps { get; set; }
-
-    [Reactive] public ObservableCollection<Mipmap> Mipmaps { get; set; }
+    [Reactive] public TextureViewModel TextureViewModel { get; set; }
 
     public MainWindowViewModel()
     {
@@ -97,32 +65,16 @@ public class MainWindowViewModel : ViewModelBase
         Resolution defaultResolution = new Resolution(1024, 1024);
         byte defaultFrameCount = 1;
 
-        Texture = new Texture(defaultResolution, defaultFrameCount);
-        TextureResolution = Texture.Resolution;
-        FrameCount = Texture.FrameCount;
-        Mipmaps = new();
-        GenerateMipmaps = true;
+        var texture = new Texture(defaultResolution, defaultFrameCount);
+        TextureViewModel = new(texture);
 
         #region Default Output Settings
 
-        GenerateMipmaps = true;
         SelectedVTFVersion = VTFVersion.VTF_7_1;
         SelectedVTFImageFormat = VTFFormat.ARGB8888;
         SelectedScaleAlgorithm = ScaleAlgorithm.Kaiser;
         SelectedScaleMode = ScaleMode.Fill;
 
         #endregion Default Output Settings
-
-        this.WhenAnyValue(mwvm => mwvm.TextureResolution)
-            .Subscribe(resolution =>
-            {
-                Texture.Resolution = resolution;
-                MipmapCount = Texture.Mipmaps.Count();
-                Mipmaps.Clear();
-                Mipmaps.AddRange(Texture.Mipmaps);
-            });
-
-        this.WhenAnyValue(mwvm => mwvm.FrameCount)
-            .Subscribe(frameCount => { Texture.FrameCount = Convert.ToByte(frameCount); });
     }
 }

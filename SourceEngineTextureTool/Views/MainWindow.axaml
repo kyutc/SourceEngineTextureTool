@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:v="using:SourceEngineTextureTool.Views"
         xmlns:vm="using:SourceEngineTextureTool.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -92,17 +93,21 @@
                         <StackPanel>
                             <ComboBox></ComboBox>
 
-                            <Grid ColumnDefinitions="*,*">
+                            <Grid ColumnDefinitions="*,*" DataContext="{Binding TextureViewModel}">
                                 <StackPanel Grid.Column="0">
                                     <Label Content="Frames" />
                                     <NumericUpDown Value="{Binding FrameCount}"
-                                                   Minimum="0" Maximum="255"
+                                                   Minimum="1" Maximum="65536"
                                                    Increment="1"
                                                    ParsingNumberStyle="Integer" />
                                 </StackPanel>
                                 <StackPanel Grid.Column="1">
                                     <Label Content="Mipmaps" />
-                                    <Label Content="{Binding MipmapCount}" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <Label Content="{Binding MipmapCount}" />
+                                        <CheckBox IsChecked="{Binding GenerateMipmaps}"
+                                                  Content="Generate Mipmaps"/>
+                                    </StackPanel>
                                 </StackPanel>
                             </Grid>
                         </StackPanel>
@@ -188,6 +193,32 @@
                     </Border>
                 </Grid>
             </SplitView.Pane>
+
+            <!-- Texture Workspace -->
+            <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, *">
+                <!-- x-axis label -->
+                <Border Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Background="Blue">
+                    <TextBlock Text="Frame" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <!-- y-axis label -->
+                <Border Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Background="Green">
+                    <LayoutTransformControl VerticalAlignment="Center">
+                        <!-- Rotate the label text -->
+                        <LayoutTransformControl.LayoutTransform>
+                            <RotateTransform Angle="270" />
+                        </LayoutTransformControl.LayoutTransform>
+                        <TextBlock Text="Mipmap" />
+                    </LayoutTransformControl>
+                </Border>
+
+                <Border Grid.Column="1" Grid.Row="1">
+                    <!-- <ScrollViewer> -->
+                        <ScrollViewer AllowAutoHide="False" HorizontalScrollBarVisibility="Auto">
+                            <v:TextureWorkspace DataContext="{Binding TextureViewModel}" />
+                        </ScrollViewer>
+                    <!-- </ScrollViewer> -->
+                </Border>
+            </Grid>
 
         </SplitView>
 
