@@ -1,0 +1,52 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:SourceEngineTextureTool.ViewModels"
+             xmlns:c="using:SourceEngineTextureTool.Controls"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="SourceEngineTextureTool.Views.TextureWorkspace"
+             x:DataType="vm:TextureViewModel">
+
+    <Border>
+        <ItemsRepeater ItemsSource="{Binding MipmapViewModels}">
+            <ItemsRepeater.ItemTemplate>
+
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+
+                        <!-- Resolution label -->
+                        <LayoutTransformControl VerticalAlignment="Center">
+                            <LayoutTransformControl.LayoutTransform>
+                                <RotateTransform Angle="270" />
+                            </LayoutTransformControl.LayoutTransform>
+                            <TextBlock Text="{Binding MipmapResolution}" />
+                        </LayoutTransformControl>
+
+                        <!-- Each mipmap is presented by splaying its frames across the row -->
+                        <ItemsRepeater ItemsSource="{Binding  FrameViewModels}">
+
+                            <ItemsRepeater.Layout>
+                                <StackLayout Orientation="Horizontal" />
+                            </ItemsRepeater.Layout>
+
+                            <ItemsRepeater.ItemTemplate>
+
+                                <DataTemplate>
+                                    <Border Classes="Frame" Height="100" Width="100">
+                                        <c:DropImageControl Source="{Binding Source}" />
+                                    </Border>
+                                </DataTemplate>
+
+                            </ItemsRepeater.ItemTemplate>
+
+                        </ItemsRepeater>
+                    </StackPanel>
+                </DataTemplate>
+
+            </ItemsRepeater.ItemTemplate>
+        </ItemsRepeater>
+
+    </Border>
+
+</UserControl>
