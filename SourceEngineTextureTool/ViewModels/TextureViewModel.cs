@@ -1,13 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive.Linq;
-using DynamicData;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using SourceEngineTextureTool.Models;
-using SourceEngineTextureTool.Models.DropImage;
 
 namespace SourceEngineTextureTool.ViewModels;
 
@@ -25,7 +21,7 @@ public class TextureViewModel : ViewModelBase
 
     [Reactive] public ObservableCollection<MipmapViewModel> MipmapViewModels { get; set; }
 
-    public TextureViewModel(Texture? texture)
+    public TextureViewModel(Texture? texture = null)
     {
         Texture = texture ?? new Texture();
         GenerateMipmaps = true;

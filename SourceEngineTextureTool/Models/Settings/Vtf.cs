@@ -14,8 +14,7 @@ public class Vtf
 
     public Format FormatOption = Format.DXT1;
     
-    public uint FlagsOption = 0;
-    
+    public Flags FlagsOption = 0;
     
     public enum Version
     {
