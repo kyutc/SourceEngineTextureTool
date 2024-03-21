@@ -11,7 +11,7 @@ public class Sett
         Autocrop,
         Collate, // Ensure animation frames are "overlayed" before autocrop boundaries and determined
     }
-    public AutocropMode Autocrop = AutocropMode.Collate;
+    public AutocropMode AutocropModeOption = AutocropMode.Collate;
     
     public enum PreviewMode
     {
