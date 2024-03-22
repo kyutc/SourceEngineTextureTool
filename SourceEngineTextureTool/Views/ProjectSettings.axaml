@@ -38,7 +38,7 @@
                                       SelectedItem="{Binding SelectedVtfVersion}">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding }" />
+                                        <TextBlock Text="{Binding ., Converter={StaticResource DisplayNameConverter}}" />
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
@@ -136,7 +136,7 @@
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Panel HorizontalAlignment="Stretch">
-                                <TextBlock Text="{Binding}" />
+                                <TextBlock Text="{Binding ., Converter={StaticResource DisplayNameConverter}}" />
                                 <!-- Todo: Override ListBox theme to fix scrollbar overlapping list items -->
                                 <CheckBox IsChecked="{Binding $parent[ListBoxItem].IsSelected}"
                                           HorizontalAlignment="Right"
