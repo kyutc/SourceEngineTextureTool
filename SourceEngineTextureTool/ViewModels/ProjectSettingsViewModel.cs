@@ -26,6 +26,21 @@ public class ProjectSettingsViewModel : ViewModelBase
     #region SETT Settings
 
     /// <summary>
+    /// Gets/sets the technique used to crop animated textures.
+    /// </summary>
+    [Reactive] public Sett.AutocropMode SelectedAutocropMode { get; set; }
+
+    public static IReadOnlyList<Sett.AutocropMode> SupportedAutocropModes { get; } =
+        Enums.GetValues<Sett.AutocropMode>();
+
+    /// <summary>
+    /// Gets/sets the method used for presenting a texture for preview.
+    /// </summary>
+    [Reactive] public Sett.PreviewMode SelectedPreviewMode { get; set; }
+
+    public static IReadOnlyList<Sett.PreviewMode> SupportedPreviewModes { get; } = Enums.GetValues<Sett.PreviewMode>();
+
+    /// <summary>
     /// Gets/sets the scale algorithm to use for resizing files to match their mipmap's <see cref="Resolution"/>.
     /// </summary>
     [Reactive] public Sett.ScaleAlgorithm SelectedScaleAlgorithm { get; set; }
@@ -62,7 +77,9 @@ public class ProjectSettingsViewModel : ViewModelBase
     /// Gets the observable list of currently selected VTF flags.
     /// </summary>
     public ObservableCollection<Vtf.Flags> SelectedVtfFlagItems { get; } = new();
-    
+
+    private IDisposable? SelectedVtfFlagItemsSubscription { get; set; }
+
     /// <summary>
     /// Gets/sets the contents of <see cref="SelectedVtfFlagItems"/>
     /// </summary>
@@ -84,7 +101,7 @@ public class ProjectSettingsViewModel : ViewModelBase
     {
         SettSettings = settSettings ?? new();
         VtfSettings = vtfSettings ?? new();
-        
+
         this.WhenAnyValue(psvm => psvm.SettSettings)
             .Subscribe(newSettSettings =>
             {
@@ -92,13 +109,11 @@ public class ProjectSettingsViewModel : ViewModelBase
                 SelectedScaleMode = newSettSettings.ScaleModeOption;
             });
 
-        this.WhenAnyValue(psvm => psvm.VtfSettings)
-            .Subscribe(newVtfSettings =>
-            {
-                SelectedVtfVersion = newVtfSettings.VtfVersion;
-                SelectedVtfImageFormat = newVtfSettings.FormatOption;
-                SelectedVtfFlags = newVtfSettings.FlagsOption;
-            });
+        this.WhenAnyValue(psvm => psvm.SelectedAutocropMode)
+            .Subscribe(newAutocropMode => SettSettings.AutocropModeOption = newAutocropMode);
+
+        this.WhenAnyValue(psvm => psvm.SelectedPreviewMode)
+            .Subscribe(newPreviewMode => SettSettings.PreviewModeOption = newPreviewMode);
 
         this.WhenAnyValue(psvm => psvm.SelectedScaleAlgorithm)
             .Subscribe(newScaleAlgorithm => SettSettings.ScaleAlgorithmOption = newScaleAlgorithm);
@@ -106,34 +121,42 @@ public class ProjectSettingsViewModel : ViewModelBase
         this.WhenAnyValue(psvm => psvm.SelectedScaleMode)
             .Subscribe(newScaleMode => SettSettings.ScaleModeOption = newScaleMode);
 
-        
+        this.WhenAnyValue(psvm => psvm.VtfSettings)
+            .Subscribe(newVtfSettings =>
+            {
+                SelectedVtfVersion = newVtfSettings.VtfVersion;
+                SelectedVtfImageFormat = newVtfSettings.FormatOption;
+                SelectedVtfFlags = newVtfSettings.FlagsOption;
+
+                SelectedVtfFlagItemsSubscription?.Dispose();
+                SelectedVtfFlagItemsSubscription = SelectedVtfFlagItems
+                    .ToObservableChangeSet()
+                    .AsObservableList()
+                    .Connect()
+                    .Subscribe(changeset =>
+                    {
+                        foreach (var change in changeset)
+                        {
+                            switch (change.Reason)
+                            {
+                                case ListChangeReason.Add:
+                                    VtfSettings.FlagsOption |= change.Item.Current;
+                                    break;
+                                case ListChangeReason.Remove:
+                                    VtfSettings.FlagsOption &= ~change.Item.Current;
+                                    break;
+                                case ListChangeReason.Clear:
+                                    VtfSettings.FlagsOption = 0;
+                                    break;
+                            }
+                        }
+                    });
+            });
+
         this.WhenAnyValue(psvm => psvm.SelectedVtfVersion)
             .Subscribe(newVtfVersion => VtfSettings.VtfVersion = newVtfVersion);
 
         this.WhenAnyValue(psvm => psvm.SelectedVtfImageFormat)
             .Subscribe(newVtfImageFormat => VtfSettings.FormatOption = newVtfImageFormat);
-        
-        SelectedVtfFlagItems
-            .ToObservableChangeSet()
-            .AsObservableList()
-            .Connect()
-            .Subscribe(changeset =>
-            {
-                foreach (var change in changeset)
-                {
-                    switch (change.Reason)
-                    {
-                        case ListChangeReason.Add:
-                            VtfSettings.FlagsOption |= change.Item.Current;
-                            break;
-                        case ListChangeReason.Remove:
-                            VtfSettings.FlagsOption ^= change.Item.Current;
-                            break;
-                        case ListChangeReason.Clear:
-                            VtfSettings.FlagsOption = 0;
-                            break;
-                    }
-                }
-            });
     }
 }

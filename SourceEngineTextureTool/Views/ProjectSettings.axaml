@@ -10,66 +10,118 @@
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:ProjectSettingsViewModel />
+        <vm:MainWindowViewModel />
     </Design.DataContext>
 
     <Border>
         <TabControl>
             <!-- Texture settings Todo: Set the width of the combobox to the width of the (open) popup w/ the greatest width -->
             <TabItem Header="Settings">
-                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto">
+                <TabItem.Styles>
+                    <Style Selector="Expander">
+                        <Setter Property="HorizontalAlignment" Value="Stretch" />
+                        <Setter Property="IsExpanded" Value="True" />
+                    </Style>
+                </TabItem.Styles>
+                <Grid RowDefinitions="Auto,Auto,*">
 
-                    <!-- VTF Version Selector -->
-                    <Label Grid.Column="0" Grid.Row="0" Content="VTF Version:" />
-                    <ComboBox Grid.Column="1" Grid.Row="0" ItemsSource="{Binding SupportedVTFVersions}"
-                              SelectedItem="{Binding SelectedVtfVersion}">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding }" />
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
+                    <!-- Vtf settings -->
+                    <Expander Grid.Row="0">
+                        <Expander.Header>
+                            VTF Properties
+                        </Expander.Header>
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
+                            <!-- VTF Version Selector -->
+                            <Label Grid.Column="0" Grid.Row="0" Content="Version:" />
+                            <ComboBox Grid.Column="1" Grid.Row="0"
+                                      ItemsSource="{Binding SupportedVTFVersions}"
+                                      SelectedItem="{Binding SelectedVtfVersion}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding }" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
 
-                    <!-- Image format -->
-                    <Label Grid.Column="0" Grid.Row="1" Content="Image Format:" />
-                    <ComboBox Grid.Column="1" Grid.Row="1"
-                              ItemsSource="{Binding SupportedVTFImageFormats}"
-                              SelectedItem="{Binding SelectedVtfImageFormat}"
-                              MaxDropDownHeight="300">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding }" />
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
+                            <!-- Image format -->
+                            <Label Grid.Column="0" Grid.Row="1" Content="Image Format:" />
+                            <ComboBox Grid.Column="1" Grid.Row="1"
+                                      ItemsSource="{Binding SupportedVTFImageFormats}"
+                                      SelectedItem="{Binding SelectedVtfImageFormat}"
+                                      MaxDropDownHeight="300">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding }" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </Grid>
+                    </Expander>
 
-                    <!-- Image scale algorithm -->
-                    <Label Grid.Column="0" Grid.Row="2" Content="Scaling Algorithm: " />
-                    <ComboBox Grid.Column="1" Grid.Row="2"
-                              ItemsSource="{Binding  SupportedScaleAlgorithms}"
-                              SelectedItem="{Binding SelectedScaleAlgorithm}">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}" />
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
+                    <!-- SETT application settings -->
+                    <Expander Grid.Row="1">
+                        <Expander.Header>
+                            Application Options
+                        </Expander.Header>
 
-                    <!-- Image scale mode -->
-                    <Label Grid.Column="0" Grid.Row="3" Content="Scale Mode:" />
-                    <ComboBox Grid.Column="1" Grid.Row="3"
-                              ItemsSource="{Binding  SupportedScaleModes}"
-                              SelectedItem="{Binding SelectedScaleMode}">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}" />
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto">
+
+                            <!-- Texture autocrop method -->
+                            <Label Grid.Column="0" Grid.Row="0" Content="Autocrop Mode: " />
+                            <ComboBox Grid.Column="1" Grid.Row="0"
+                                      ItemsSource="{Binding  SupportedAutocropModes}"
+                                      SelectedItem="{Binding SelectedAutocropMode}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+
+                            <!-- Texture preview technique -->
+                            <Label Grid.Column="0" Grid.Row="1" Content="Preview mode: " />
+                            <ComboBox Grid.Column="1" Grid.Row="1"
+                                      ItemsSource="{Binding  SupportedPreviewModes}"
+                                      SelectedItem="{Binding SelectedPreviewMode}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+
+                            <!-- Image scale mode -->
+                            <Label Grid.Column="0" Grid.Row="2" Content="Scale Mode:" />
+                            <ComboBox Grid.Column="1" Grid.Row="2"
+                                      ItemsSource="{Binding  SupportedScaleModes}"
+                                      SelectedItem="{Binding SelectedScaleMode}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+
+                            <!-- Image scale algorithm -->
+                            <Label Grid.Column="0" Grid.Row="3" Content="Scaling Algorithm: " />
+                            <ComboBox Grid.Column="1" Grid.Row="3"
+                                      ItemsSource="{Binding  SupportedScaleAlgorithms}"
+                                      SelectedItem="{Binding SelectedScaleAlgorithm}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+
+                        </Grid>
+
+                    </Expander>
+
                 </Grid>
             </TabItem>
 
-            <TabItem Header="Flags">
+            <TabItem Header="VTF Flags">
                 <!-- Optional VTF Flags -->
                 <ListBox Name="VtfFlagsListBox"
                          ItemsSource="{Binding OptionalVTFFlags}"
