@@ -1,30 +1,31 @@
-using Avalonia.Controls;
 using System;
 using System.IO;
+using SourceEngineTextureTool.Models;
 
 public static class ImageUtility
 {
-    public static (int width, int height) GetImageDimensions(string imagePath)
+    public static Resolution GetImageDimensions(string imagePath)
     {
-        int width = 0;
-        int height = 0;
-
-        try
+        using BinaryReader br = new BinaryReader(File.OpenRead(imagePath));
         {
-            using (var stream = File.OpenRead(imagePath))
+            br.BaseStream.Position = 16;
+            byte[] widthBytes = new byte[sizeof(int)];
+            for (int i = 0; i < sizeof(int); i++) widthBytes[sizeof(int) - 1 - i] = br.ReadByte();
+            int width = BitConverter.ToInt32(widthBytes, 0);
+            byte[] heightBytes = new byte[sizeof(int)];
+            for (int i = 0; i < sizeof(int); i++) heightBytes[sizeof(int) - 1 - i] = br.ReadByte();
+            int height = BitConverter.ToInt32(heightBytes, 0);
+
+            try
             {
-                var imageControl = new Image();
-                imageControl.Source = new Avalonia.Media.Imaging.Bitmap(stream);
-
-                width = (int)imageControl.Width;
-                height = (int)imageControl.Height;
+                Resolution resolution = new Resolution(width, height);
             }
+            catch (ArgumentException ex)
+            {
+                throw new ArgumentException("Invalid image dimensions.", ex);
+            }
+            
+            return new Resolution(width, height);
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error: {ex.Message}");
-        }
-
-        return (width, height);
     }
 }
