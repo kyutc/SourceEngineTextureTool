@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DynamicData;
 
 namespace SourceEngineTextureTool.Models;
 
@@ -75,7 +74,6 @@ public class Texture
 
         Resolution oldResolution = _resolution;
         _resolution = newResolution;
-
         // Check if the new resolution is a smaller scalar of the old one.
         // If so, truncate the list.
         {
@@ -84,7 +82,7 @@ public class Texture
             if (index != -1)
             {
                 // New resolution is a smaller scalar of the previous resolution, truncate.
-                _mipmaps.RemoveRange(0, index - 1);
+                _mipmaps.RemoveRange(0, index);
                 return;
             }
         }
@@ -94,7 +92,6 @@ public class Texture
         var requiredResolutions = new List<Resolution>() { Resolution };
         {
             var resolution = Resolution;
-
             while ((resolution.Width | resolution.Height) != 1)
             {
                 resolution /= 2;
