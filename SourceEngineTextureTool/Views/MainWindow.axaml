@@ -94,14 +94,16 @@
                                 <Grid ColumnDefinitions="*,*">
                                     <StackPanel Grid.Column="0">
                                         <Label Content="Res X" />
-                                        <NumericUpDown Value="{Binding ResolutionWidth}"
+                                        <NumericUpDown x:Name="TextureWidthControl"
+                                                       Value="{Binding ResolutionWidth}"
                                                        Minimum="1" Maximum="65536"
                                                        Increment="1"
                                                        ParsingNumberStyle="Integer" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1">
                                         <Label Content="Res Y" />
-                                        <NumericUpDown Value="{Binding ResolutionHeight}"
+                                        <NumericUpDown x:Name="TextureHeightControl"
+                                                       Value="{Binding ResolutionHeight}"
                                                        Minimum="1" Maximum="65536"
                                                        Increment="1"
                                                        ParsingNumberStyle="Integer" />
@@ -114,7 +116,8 @@
                                 <Grid ColumnDefinitions="*,*">
                                     <StackPanel Grid.Column="0">
                                         <Label Content="Frames" />
-                                        <NumericUpDown Value="{Binding FrameCount}"
+                                        <NumericUpDown x:Name="TextureFrameCountControl"
+                                                       Value="{Binding FrameCount}"
                                                        Minimum="1" Maximum="65536"
                                                        Increment="1"
                                                        ParsingNumberStyle="Integer" />
