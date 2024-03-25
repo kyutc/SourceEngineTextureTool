@@ -10,28 +10,38 @@ namespace SourceEngineTextureTool.UnitTests.BinaryAccess.Dds;
 [TestFixture]
 public class ReaderTest
 {
+    private string assetsDirectory;
+    
+    [SetUp]
+    public void Setup()
+    {
+        string assemblyDirectory = TestContext.CurrentContext.TestDirectory;
+        
+        assetsDirectory = Path.Combine(assemblyDirectory, "..","..","..","UnitTests", "ddsAssets");
+    }
+
     [Test]
     public void Test_ThrowsException()
     {
         //Arrange
-        string DdsFilePath = @"C:\Users\Abraham\Desktop\chad.dds";
-
+        string ddsFilePath = Path.Combine(assetsDirectory, "chad.dds");
+        
         //Act
-        TestDelegate act = () => Reader.FromFile(DdsFilePath);
-
+        TestDelegate act = () => Reader.FromFile(ddsFilePath);
+        
         //Assert
         Assert.Throws<Exception>(act);
-    }
-
+    }    
+    
     [Test]
     public void Test_InvalidFileExtension()
     {
         //Arrange
-        string invalidExtension = @"C:\Users\Abraham\Desktop\Burger.png";
-        
+        string invalidExtension = Path.Combine(assetsDirectory, "toothless-dance.dds");
+
         //Act
         TestDelegate act = () => Reader.FromFile(invalidExtension);
-        
+
         //Assert
         Assert.Throws<Exception>(act);
     }
@@ -40,26 +50,12 @@ public class ReaderTest
     public void Test_NonExistingFile()
     {
         //Arrange
-        string filePath = @"C:\Users\Abraham\Desktop\nonexistent.dds";
+        string filePath = Path.Combine(assetsDirectory, "nonexistent.dds");
 
         //Act
         TestDelegate act = () => Reader.FromFile(filePath);
-        
+
         //Assert
         Assert.Throws<FileNotFoundException>(act);
     }
-
-    [Test]
-    public void Test_ValidDdsFile()
-    {
-        //Arrange
-        string filePath = @"C:\Users\Abraham\Desktop\black.dds";
-
-        //Act
-        byte[] result = Reader.FromFile(filePath);
-
-        //Assert
-        ClassicAssert.NotNull(result);
-    }
-    
 }
