@@ -15,15 +15,6 @@ public static class ImageUtility
             byte[] heightBytes = new byte[sizeof(int)];
             for (int i = 0; i < sizeof(int); i++) heightBytes[sizeof(int) - 1 - i] = br.ReadByte();
             int height = BitConverter.ToInt32(heightBytes, 0);
-
-            try
-            {
-                Resolution resolution = new Resolution(width, height);
-            }
-            catch (ArgumentException ex)
-            {
-                throw new ArgumentException("Invalid image dimensions.", ex);
-            }
             
             return new Resolution(width, height);
         }
