@@ -88,27 +88,49 @@
                     </Grid.Styles>
 
                     <!-- Texture properties -->
-                    <Border Grid.Row="0">
+                    <Border Grid.Row="0" DataContext="{Binding TextureViewModel}">
                         <StackPanel>
-                            <ComboBox />
-
-                            <Grid ColumnDefinitions="*,*" DataContext="{Binding TextureViewModel}">
-                                <StackPanel Grid.Column="0">
-                                    <Label Content="Frames" />
-                                    <NumericUpDown Value="{Binding FrameCount}"
-                                                   Minimum="1" Maximum="65536"
-                                                   Increment="1"
-                                                   ParsingNumberStyle="Integer" />
-                                </StackPanel>
-                                <StackPanel Grid.Column="1">
-                                    <Label Content="Mipmaps" />
-                                    <StackPanel Orientation="Horizontal">
-                                        <Label Content="{Binding MipmapCount}" />
-                                        <CheckBox IsChecked="{Binding GenerateMipmaps}"
-                                                  Content="Generate Mipmaps" />
+                            <Border>
+                                <Grid ColumnDefinitions="*,*">
+                                    <StackPanel Grid.Column="0">
+                                        <Label Content="Res X" />
+                                        <NumericUpDown Value="{Binding ResolutionWidth}"
+                                                       Minimum="1" Maximum="65536"
+                                                       Increment="1"
+                                                       ParsingNumberStyle="Integer" />
                                     </StackPanel>
-                                </StackPanel>
-                            </Grid>
+                                    <StackPanel Grid.Column="1">
+                                        <Label Content="Res Y" />
+                                        <NumericUpDown Value="{Binding ResolutionHeight}"
+                                                       Minimum="1" Maximum="65536"
+                                                       Increment="1"
+                                                       ParsingNumberStyle="Integer" />
+                                    </StackPanel>
+                                </Grid>
+                                
+                            </Border>
+                            
+                            <Border>
+                                <Grid ColumnDefinitions="*,*">
+                                    <StackPanel Grid.Column="0">
+                                        <Label Content="Frames" />
+                                        <NumericUpDown Value="{Binding FrameCount}"
+                                                       Minimum="1" Maximum="65536"
+                                                       Increment="1"
+                                                       ParsingNumberStyle="Integer" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1">
+                                        <Label Content="Mipmaps" />
+                                        <StackPanel Orientation="Horizontal">
+                                            <Label Content="{Binding MipmapCount}" />
+                                            <CheckBox IsChecked="{Binding GenerateMipmaps}"
+                                                      Content="Generate Mipmaps" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+                                
+                            </Border>
+                            
                         </StackPanel>
                     </Border>
 
@@ -126,30 +148,32 @@
             </SplitView.Pane>
 
             <!-- Texture Workspace -->
-            <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto, *">
-                <!-- x-axis label -->
-                <Border Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Background="Blue">
-                    <TextBlock Text="Frame" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </Border>
-                <!-- y-axis label -->
-                <Border Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Background="Green">
-                    <LayoutTransformControl VerticalAlignment="Center">
-                        <!-- Rotate the label text -->
-                        <LayoutTransformControl.LayoutTransform>
-                            <RotateTransform Angle="270" />
-                        </LayoutTransformControl.LayoutTransform>
-                        <TextBlock Text="Mipmap" />
-                    </LayoutTransformControl>
-                </Border>
+            <StackPanel>
+                <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto,*">
+                    <!-- x-axis label -->
+                    <Border Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Background="Blue">
+                        <TextBlock Text="Frame" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <!-- y-axis label -->
+                    <Border Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Background="Green">
+                        <LayoutTransformControl VerticalAlignment="Center">
+                            <!-- Rotate the label text -->
+                            <LayoutTransformControl.LayoutTransform>
+                                <RotateTransform Angle="270" />
+                            </LayoutTransformControl.LayoutTransform>
+                            <TextBlock Text="Mipmap" />
+                        </LayoutTransformControl>
+                    </Border>
 
-                <Border Grid.Column="1" Grid.Row="1">
-                    <!-- <ScrollViewer> -->
-                    <ScrollViewer AllowAutoHide="False" HorizontalScrollBarVisibility="Auto">
-                        <v:TextureWorkspace DataContext="{Binding TextureViewModel}" />
-                    </ScrollViewer>
-                    <!-- </ScrollViewer> -->
-                </Border>
-            </Grid>
+                    <Border Grid.Column="1" Grid.Row="1">
+                        <!-- <ScrollViewer> -->
+                        <ScrollViewer AllowAutoHide="False" HorizontalScrollBarVisibility="Auto">
+                            <v:TextureWorkspace DataContext="{Binding TextureViewModel}" />
+                        </ScrollViewer>
+                        <!-- </ScrollViewer> -->
+                    </Border>
+                </Grid>
+            </StackPanel>
 
         </SplitView>
 
