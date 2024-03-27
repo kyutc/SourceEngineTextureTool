@@ -1,14 +1,20 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive.Linq;
+using EnumsNET;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using SourceEngineTextureTool.Models;
+using SourceEngineTextureTool.Services.Propagator;
 
 namespace SourceEngineTextureTool.ViewModels;
 
 public class TextureViewModel : ViewModelBase
 {
+    private ReactivePropertyPropagatorManager _reactivePropertyPropagatorManager = new();
+
     [Reactive] public Texture Texture { get; set; }
 
     [Reactive] public Resolution TextureResolution { get; set; }
@@ -19,7 +25,7 @@ public class TextureViewModel : ViewModelBase
         get => TextureResolution.Width;
         set => TryUpdateTextureResolution(value, ResolutionHeight);
     }
-    
+
     // Todo: Width and height should be modified at the same time. Impossible currently.
     public int ResolutionHeight
     {
@@ -54,22 +60,31 @@ public class TextureViewModel : ViewModelBase
             }
         }
     }
-    
+
     [Reactive] public ushort FrameCount { get; set; }
 
     [Reactive] public int MipmapCount { get; set; }
 
     [Reactive] public bool GenerateMipmaps { get; set; }
 
+    [Reactive] public PropagationStrategy MipmapSourcePropagationStrategy { get; set; }
+
+    public static IReadOnlyList<PropagationStrategy> SupportedPropagationStrategies { get; } =
+        Enums.GetValues<PropagationStrategy>();
+
     [Reactive] public ObservableCollection<MipmapViewModel> MipmapViewModels { get; set; }
 
     public TextureViewModel(Texture? texture = null)
     {
         Texture = texture ?? new Texture();
+        TextureResolution = Texture.Resolution;
+        FrameCount = Texture.FrameCount;
         GenerateMipmaps = true;
+        MipmapSourcePropagationStrategy = _reactivePropertyPropagatorManager.PropagationStrategy;
         MipmapViewModels = new();
 
         this.WhenAnyValue(tvm => tvm.Texture)
+            .Skip(1)
             .Subscribe(newTexture =>
             {
                 TextureResolution = newTexture.Resolution;
@@ -77,6 +92,7 @@ public class TextureViewModel : ViewModelBase
             });
 
         this.WhenAnyValue(tvm => tvm.TextureResolution)
+            .Skip(1)
             .Subscribe(textureResolution =>
             {
                 Texture.Resolution = textureResolution;
@@ -86,6 +102,7 @@ public class TextureViewModel : ViewModelBase
             });
 
         this.WhenAnyValue(tvm => tvm.FrameCount)
+            .Skip(1)
             .Subscribe(frameCount =>
             {
                 // If new value is invalid, revert.
@@ -101,10 +118,20 @@ public class TextureViewModel : ViewModelBase
                 {
                     mipmapViewModel.Refresh();
                 }
+
+                _SetupPropagation();
             });
 
         this.WhenAnyValue(tvm => tvm.GenerateMipmaps)
+            .Skip(1)
             .Subscribe(_ => Refresh());
+
+        this.WhenAnyValue(tvm => tvm.MipmapSourcePropagationStrategy)
+            .Skip(1)
+            .Subscribe(propagationStrategy =>
+                _reactivePropertyPropagatorManager.PropagationStrategy = propagationStrategy);
+
+        Refresh();
     }
 
     /// <summary>
@@ -143,5 +170,20 @@ public class TextureViewModel : ViewModelBase
         }
 
         MipmapCount = MipmapViewModels.Count;
+
+        _SetupPropagation();
+    }
+
+    private void _SetupPropagation()
+    {
+        _reactivePropertyPropagatorManager.Clear();
+
+        MipmapViewModels.SelectMany(mvm => mvm.FrameViewModels.Select((fvm, index) => (index, fvm)))
+            .GroupBy(i => i.index, i => i.fvm)
+            .Select(g => g.ToList())
+            .ToList()
+            .ForEach(fvms => _reactivePropertyPropagatorManager.InitializePropertyPropagationSequence(fvms,
+                fvm => fvm.Source)
+            );
     }
 }

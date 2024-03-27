@@ -34,7 +34,7 @@
 
                                 <DataTemplate>
                                     <Border Classes="Frame" Height="100" Width="100">
-                                        <c:DropImageControl Source="{Binding Source}" />
+                                        <c:DropImageControl Source="{Binding Source, Mode=TwoWay}" />
                                     </Border>
                                 </DataTemplate>
 

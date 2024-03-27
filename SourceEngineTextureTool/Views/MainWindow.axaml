@@ -131,9 +131,22 @@
                                         </StackPanel>
                                     </StackPanel>
                                 </Grid>
-                                
                             </Border>
-                            
+                            <Border>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Content="Inherit mipmap source from: "/>
+                                    <ComboBox Grid.Column="1"
+                                              ItemsSource="{Binding SupportedPropagationStrategies}"
+                                              SelectedItem="{Binding MipmapSourcePropagationStrategy}"
+                                              MaxDropDownHeight="300">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding }" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </Grid>
+                            </Border>
                         </StackPanel>
                     </Border>
 
