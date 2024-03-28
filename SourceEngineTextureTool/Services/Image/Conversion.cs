@@ -43,6 +43,11 @@ public class CompositeOperation : Operation
     public required byte A;
 }
 
+public class WriteOutOperation : Operation
+{
+    public required string Outfile;
+}
+
 public class CrunchOperation : Operation
 {
     // TODO: This will include the options necessary to encode the image into a DDS with the provided options using Crunch.
@@ -50,7 +55,7 @@ public class CrunchOperation : Operation
 
 public static class Conversion
 {
-    public static void Run(string infile, ref string[] outfile, ref List<Operation> tasks)
+    public static void Run(string infile, ref List<Operation> tasks)
     {
         // TODO: Recursive implementation for inputs with more than 1 frame
         // var img = new MagickImageCollection(infile);
@@ -77,6 +82,9 @@ public static class Conversion
                     break;
                 case CrunchOperation operation:
                     CrunchMe(ref img, ref operation);
+                    break;
+                case WriteOutOperation operation:
+                    WriteOut(ref img, ref operation);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -156,5 +164,11 @@ public static class Conversion
     {
         // TODO
         throw new NotImplementedException();
+    }
+
+    private static void WriteOut(ref MagickImage img, ref WriteOutOperation operation)
+    {
+        // TODO: Handle multiple outputs (animated input)
+        img.Write(operation.Outfile);
     }
 }
