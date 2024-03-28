@@ -82,8 +82,6 @@ public static class Conversion
                     throw new NotImplementedException();
             }
         }
-        
-        img.Write("/tmp/out.png");
     }
 
     // This might be superfluous as its own operation
