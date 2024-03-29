@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace SourceEngineTextureTool.Services.Propagator;
 
 /// <summary>
@@ -5,7 +7,7 @@ namespace SourceEngineTextureTool.Services.Propagator;
 /// </summary>
 public enum PropagationStrategy
 {
-    DoNotPropagate,
-    FromFirstInSequence,
-    FromPreviousInSequence
+    [Display(Name = "Do not generate mipmaps")] DoNotPropagate,
+    [Display(Name = "The largest mipmap")] FromFirstInSequence,
+    [Display(Name = "The previous mipmap")] FromPreviousInSequence
 }
