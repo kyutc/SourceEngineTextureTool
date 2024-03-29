@@ -164,7 +164,7 @@
             </SplitView.Pane>
 
             <!-- Texture Workspace -->
-            <StackPanel>
+            <Border>
                 <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto,*">
                     <!-- x-axis label -->
                     <Border Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Background="Blue">
@@ -182,14 +182,12 @@
                     </Border>
 
                     <Border Grid.Column="1" Grid.Row="1">
-                        <!-- <ScrollViewer> -->
                         <ScrollViewer AllowAutoHide="False" HorizontalScrollBarVisibility="Auto">
                             <v:TextureWorkspace DataContext="{Binding TextureViewModel}" />
                         </ScrollViewer>
-                        <!-- </ScrollViewer> -->
                     </Border>
                 </Grid>
-            </StackPanel>
+            </Border>
 
         </SplitView>
 
