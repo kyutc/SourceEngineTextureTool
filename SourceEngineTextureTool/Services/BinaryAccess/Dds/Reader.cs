@@ -65,7 +65,7 @@ public static class Reader
         // VTF supports a max width/height of 2^16-1 pixels (in theory)
         valid &= width is > 0 and < 65536;
         valid &= height is > 0 and < 65536;
-        valid &= mipmaps == 1; // For our case, mipmaps should always be 1
+        valid &= mipmaps == 0; // For our case, mipmaps should always be 0
         valid &= depth == 0; // For our case, depth should always be 0
         
         if (!valid) throw new Exception("Invalid DDS file provided.");
