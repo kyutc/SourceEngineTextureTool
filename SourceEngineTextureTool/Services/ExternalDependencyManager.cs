@@ -5,8 +5,6 @@ namespace SourceEngineTextureTool.Services;
 
 public static class ExternalDependencyManager
 {
-    public static readonly string imagemagick;
-    public static readonly string ffmpeg;
     public static readonly string crunch;
 
     private static readonly Architecture _arch;
@@ -29,18 +27,16 @@ public static class ExternalDependencyManager
     {
         _arch = _getArch();
         _OS = _getOS();
-
-        imagemagick = _OS == OperatingSystem.Windows ? "convert.exe" : "convert";
-        ffmpeg = _OS == OperatingSystem.Windows ? "ffmpeg.exe" : "ffmpeg";
+        
         crunch = _OS == OperatingSystem.Windows ?
             (_arch == Architecture.x86 ? "crunch.exe" : "crunch_x64.exe") : 
             (_arch == Architecture.x86 ? "crunch" : "crunch_x64");
 
-        if (!(_testCrunch() && _testFfmpeg() && _testImageMagick()))
+        if (!_testCrunch())
         {
             // TODO: Is it worthwhile to create a unique error for each of these?
             throw new Exception(
-                "External binary dependency error: crunch, ffmpeg, and/or imagemagick missing or not functional.");
+                "External binary dependency error: crunch missing or not functional.");
         }
     }
 
@@ -79,16 +75,6 @@ public static class ExternalDependencyManager
         p.WaitForExit(); // Block until program completes
 
         return p.ExitCode == 0;
-    }
-
-    private static bool _testImageMagick()
-    {
-        return _testExec(imagemagick, "--version");
-    }
-
-    private static bool _testFfmpeg()
-    {
-        return _testExec(ffmpeg, "-version");
     }
 
     private static bool _testCrunch()
