@@ -45,15 +45,23 @@ public class CompositeOperation : Operation
     public required byte A;
 }
 
-public class WriteOutOperation : Operation
+public interface IMultipleOutputs
+{
+    public uint Start { get; set; }
+    public uint Wrap { get; set; }
+}
+
+public class WriteOutOperation : Operation, IMultipleOutputs
 {
     public required string Outfile;
+    public uint Start { get; set; } = 0;
+    public uint Wrap { get; set; } = int.MaxValue;
 }
 
 /// <summary>
 /// Terminal operation. Writes a file, does not consume the file for the next input.
 /// </summary>
-public class CrunchOperation : Operation
+public class CrunchOperation : Operation, IMultipleOutputs
 {
     public required ImageFormat Format;
     /// <summary>
@@ -61,6 +69,9 @@ public class CrunchOperation : Operation
     /// </summary>
     public byte AlphaThreashold = 128;
     public required string Outfile;
+
+    public uint Start { get; set; } = 0;
+    public uint Wrap { get; set; } = int.MaxValue;
 
     public enum ImageFormat
     {
@@ -91,10 +102,8 @@ public static class Conversion
 {
     public static void Run(string infile, ref readonly List<Operation> tasks)
     {
-        // TODO: Recursive implementation for inputs with more than 1 frame
-        // var img = new MagickImageCollection(infile);
-        
-        var img = new MagickImage(infile);
+        var imgs = new MagickImageCollection(infile);
+        imgs.Coalesce();
 
         // Task order matters, and tasks can be executed more than once
         // ex. autocrop twice in a row, or scale to 512 and then 1024 (but don't do that)
@@ -103,22 +112,22 @@ public static class Conversion
             switch (task)
             {
                 case AutocropOperation operation:
-                    Autocrop(ref img, ref operation);
+                    Autocrop(ref imgs, ref operation);
                     break;
                 case ScaleOperation operation:
-                    Scale(ref img, ref operation);
+                    Scale(ref imgs, ref operation);
                     break;
                 case CompositeOperation operation:
-                    Composite(ref img, ref operation);
+                    Composite(ref imgs, ref operation);
                     break;
                 case NormaliseToPng32:
-                    Normalise(ref img);
+                    Normalise(ref imgs);
                     break;
                 case CrunchOperation operation:
-                    CrunchMe(ref img, ref operation);
+                    CrunchMe(ref imgs, ref operation);
                     break;
                 case WriteOutOperation operation:
-                    WriteOut(ref img, ref operation);
+                    WriteOut(ref imgs, ref operation);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -127,25 +136,31 @@ public static class Conversion
     }
 
     // This might be superfluous as its own operation
-    private static void Normalise(ref MagickImage img)
+    private static void Normalise(ref MagickImageCollection imgs)
     {
-        img.Format = MagickFormat.Png32;
-        img.ColorType = ColorType.TrueColorAlpha;
+        foreach (MagickImage img in imgs)
+        {
+            img.Format = MagickFormat.Png32;
+            img.ColorType = ColorType.TrueColorAlpha;
+        }
     }
 
-    private static void Autocrop(ref MagickImage img, ref readonly AutocropOperation operation)
+    private static void Autocrop(ref MagickImageCollection imgs, ref readonly AutocropOperation operation)
     {
-        if (operation.Normalise)
-            NormalisedAutocrop(ref img);
-        else 
-            img.Trim();
+        foreach (MagickImage img in imgs)
+        {
+            if (operation.Normalise)
+                NormalisedAutocrop(img); // Some kind of iterator voodoo means this is passed by reference even though it's not?
+            else
+                img.Trim();
+        }
     }
 
     /// <summary>
     /// Continue running the autocrop operation until the resolution does not change.
     /// </summary>
     /// <param name="img"></param>
-    private static void NormalisedAutocrop(ref MagickImage img)
+    private static void NormalisedAutocrop(MagickImage img)
     {
         (int, int) oldRes;
         do
@@ -155,64 +170,79 @@ public static class Conversion
         } while (oldRes != (img.Width, img.Height));
     }
 
-    private static void Scale(ref MagickImage img, ref readonly ScaleOperation operation)
+    private static void Scale(ref MagickImageCollection imgs, ref readonly ScaleOperation operation)
     {
-        // Translate our enum to Imagick's enum
-        img.FilterType = operation.Algorithm switch
+        foreach (MagickImage img in imgs)
         {
-            ScaleOperation.ScaleAlgorithm.Kaiser => FilterType.Kaiser,
-            ScaleOperation.ScaleAlgorithm.Point => FilterType.Point,
-            _ => throw new NotImplementedException(),
-        };
-
-        if (operation.Mode != ScaleOperation.ScaleMode.None)
-        {
-            img.Resize(new MagickGeometry()
+            // Translate our enum to Imagick's enum
+            img.FilterType = operation.Algorithm switch
             {
-                Width = operation.Width,
-                Height = operation.Height,
-                FillArea = operation.Mode == ScaleOperation.ScaleMode.Fill, // "Fit" is false here
-                IgnoreAspectRatio = operation.Mode == ScaleOperation.ScaleMode.Stretch, // Mutual exclusion with other modes
-            });
-        }
+                ScaleOperation.ScaleAlgorithm.Kaiser => FilterType.Kaiser,
+                ScaleOperation.ScaleAlgorithm.Point => FilterType.Point,
+                _ => throw new NotImplementedException(),
+            };
 
-        // Center the image and ensure the final size matches the user's request. Since this creates new pixels, a
-        // background colour must be used.
-        img.BackgroundColor = new MagickColor(
-            operation.Background.R, operation.Background.G,
-            operation.Background.B, operation.Background.A);
-        img.Extent(operation.Width, operation.Height, Gravity.Center);
+            if (operation.Mode != ScaleOperation.ScaleMode.None)
+            {
+                img.Resize(new MagickGeometry()
+                {
+                    Width = operation.Width,
+                    Height = operation.Height,
+                    FillArea = operation.Mode == ScaleOperation.ScaleMode.Fill, // "Fit" is false here
+                    IgnoreAspectRatio =
+                        operation.Mode == ScaleOperation.ScaleMode.Stretch, // Mutual exclusion with other modes
+                });
+            }
+
+            // Center the image and ensure the final size matches the user's request. Since this creates new pixels, a
+            // background colour must be used.
+            img.BackgroundColor = new MagickColor(
+                operation.Background.R, operation.Background.G,
+                operation.Background.B, operation.Background.A);
+            img.Extent(operation.Width, operation.Height, Gravity.Center);
+        }
     }
 
-    private static void Composite(ref MagickImage img, ref readonly CompositeOperation operation)
+    private static void Composite(ref MagickImageCollection imgs, ref readonly CompositeOperation operation)
     {
         var bg = new MagickImage(
             new MagickColor(operation.R, operation.G, operation.B, operation.A),
-            img.Width,
-            img.Height);
-
-        img.Composite(bg, CompositeOperator.DstOver);
+            imgs[0].Width,
+            imgs[0].Height);
+        foreach (MagickImage img in imgs)
+        {
+            img.Composite(bg, CompositeOperator.DstOver);
+        }
     }
 
-    private static void CrunchMe(ref MagickImage img, ref readonly CrunchOperation operation)
+    private static void CrunchMe(ref MagickImageCollection imgs, ref readonly CrunchOperation operation)
     {
-        string infile = PathManager.GetTempWorkPngFile();
         Directory.CreateDirectory(PathManager.GetTempWorkDirectory());
-        img.Write(infile); // MagickImage cannot talk to the crunch binary, so write out and then read in.
 
-        string args = $" -file {infile}"
-                      + " -fileFormat dds -mipMode None "
-                      + (operation.Format == CrunchOperation.ImageFormat.DXT1A
-                          ? $" -alphaThreshold {operation.AlphaThreashold} "
-                          : "")
-                      + $" -{operation.Format.ToString()} " // Texture format
-                      + $" -out {operation.Outfile} ";
-            
-        CrunchExec(args);
+        uint index = operation.Start;
+        foreach (MagickImage img in imgs)
+        {
+            string infile = PathManager.GetTempWorkPngFile();
+            img.Write(infile); // MagickImage cannot talk to the crunch binary, so write out and then read in.
+            string outfile = string.Format(operation.Outfile, index++ % operation.Wrap);
+            Directory.CreateDirectory(Path.GetDirectoryName(outfile));
 
-        #if !DEBUG
+            // TODO: Crunch can accept multiple input files at once, but this will require manually renaming the outputs
+            // TODO: No deduplication is done here; identical images will be reprocessed which will hurt performance
+            string args = $" -file {infile}"
+                          + " -fileFormat dds -mipMode None "
+                          + (operation.Format == CrunchOperation.ImageFormat.DXT1A
+                              ? $" -alphaThreshold {operation.AlphaThreashold} "
+                              : "")
+                          + $" -{operation.Format.ToString()} " // Texture format
+                          + $" -out {outfile} ";
+
+            CrunchExec(args);
+
+#if !DEBUG
         File.Delete(infile);
-        #endif
+#endif
+        }
     }
 
     private static void CrunchExec(string args)
@@ -235,9 +265,14 @@ public static class Conversion
         p.WaitForExit(); // Block until program completes
     }
 
-    private static void WriteOut(ref MagickImage img, ref readonly WriteOutOperation operation)
+    private static void WriteOut(ref MagickImageCollection imgs, ref readonly WriteOutOperation operation)
     {
-        // TODO: Handle multiple outputs (animated input)
-        img.Write(operation.Outfile);
+        uint index = operation.Start;
+        foreach (MagickImage img in imgs)
+        {
+            string outfile = string.Format(operation.Outfile, index++ % operation.Wrap);
+            Directory.CreateDirectory(Path.GetDirectoryName(outfile));
+            img.Write(outfile);
+        }
     }
 }
