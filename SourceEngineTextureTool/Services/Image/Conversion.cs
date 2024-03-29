@@ -8,7 +8,7 @@ public abstract class Operation;
 
 public class AutocropOperation : Operation
 {
-    public required bool Normalise = false;
+    public bool Normalise = false;
 }
 public class NormaliseToPng32 : Operation;
 
@@ -50,12 +50,41 @@ public class WriteOutOperation : Operation
 
 public class CrunchOperation : Operation
 {
-    // TODO: This will include the options necessary to encode the image into a DDS with the provided options using Crunch.
+    public required ImageFormat Format;
+    /// <summary>
+    /// DXT1A alpha transparency threshold.
+    /// </summary>
+    public byte AlphaThreashold = 127;
+    public required string Outfile;
+
+    public enum ImageFormat
+    {
+        DXT1,
+        DXT2,
+        DXT3,
+        DXT4,
+        DXT5,
+        // Note: formats without an overlap with VTF are commented out
+        //_3DC,
+        //DXN,
+        DXT5A, // Is this not the same thing as DXT5?
+        //DXT5_CCxY,
+        //DXT5_xGxR,
+        //DXT5_xGBR,
+        //DXT5_AGBR,
+        DXT1A,
+        //ETC1,
+        R8G8B8,
+        L8,
+        A8,
+        A8L8,
+        A8R8G8B8,
+    }
 }
 
 public static class Conversion
 {
-    public static void Run(string infile, ref List<Operation> tasks)
+    public static void Run(string infile, ref readonly List<Operation> tasks)
     {
         // TODO: Recursive implementation for inputs with more than 1 frame
         // var img = new MagickImageCollection(infile);
@@ -99,7 +128,7 @@ public static class Conversion
         img.ColorType = ColorType.TrueColorAlpha;
     }
 
-    private static void Autocrop(ref MagickImage img, ref AutocropOperation operation)
+    private static void Autocrop(ref MagickImage img, ref readonly AutocropOperation operation)
     {
         if (operation.Normalise)
             NormalisedAutocrop(ref img);
@@ -121,7 +150,7 @@ public static class Conversion
         } while (oldRes != (img.Width, img.Height));
     }
 
-    private static void Scale(ref MagickImage img, ref ScaleOperation operation)
+    private static void Scale(ref MagickImage img, ref readonly ScaleOperation operation)
     {
         // Translate our enum to Imagick's enum
         img.FilterType = operation.Algorithm switch
@@ -150,7 +179,7 @@ public static class Conversion
         img.Extent(operation.Width, operation.Height, Gravity.Center);
     }
 
-    private static void Composite(ref MagickImage img, ref CompositeOperation operation)
+    private static void Composite(ref MagickImage img, ref readonly CompositeOperation operation)
     {
         var bg = new MagickImage(
             new MagickColor(operation.R, operation.G, operation.B, operation.A),
@@ -160,13 +189,13 @@ public static class Conversion
         img.Composite(bg, CompositeOperator.DstOver);
     }
 
-    private static void CrunchMe(ref MagickImage img, ref CrunchOperation operation)
+    private static void CrunchMe(ref MagickImage img, ref readonly CrunchOperation operation)
     {
         // TODO
         throw new NotImplementedException();
     }
 
-    private static void WriteOut(ref MagickImage img, ref WriteOutOperation operation)
+    private static void WriteOut(ref MagickImage img, ref readonly WriteOutOperation operation)
     {
         // TODO: Handle multiple outputs (animated input)
         img.Write(operation.Outfile);
