@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Security.Cryptography;
 
 namespace SourceEngineTextureTool.Services;
 
@@ -9,6 +10,7 @@ public static class PathManager
     // Assumption: mipmaps <= 99; frames <= 999, faces <= 9, slices <= 9
     // Though this shouldn't break at values above those, the path will just be less pretty
     private const string Slug = "mipmap_{0:D2}/frame_{1:D3}/face_{2:D1}/slice_{3:D1}";
+    private const string FrameSlug = "mipmap_{0:D2}/frame_{{0:D3}}/face_{1:D1}/slice_{2:D1}";
 
     static PathManager()
     {
@@ -27,6 +29,49 @@ public static class PathManager
     public static string GetBaseDir()
     {
         return BaseDir;
+    }
+
+    /// <summary>
+    /// Returns a random, unique file path.
+    /// </summary>
+    /// <returns></returns>
+    public static string GetTempWorkPngFile()
+    {
+        return Path.Join(
+            GetTempWorkDirectory(),
+            $"/{RandomNumberGenerator.GetInt32(Int32.MaxValue):X8}.png"
+            );
+    }
+    
+    public static string GetTempWorkDirectory()
+    {
+        return Path.Join(
+            BaseDir,
+            "/working/"
+        );
+    }
+
+    public static string GetImageDirectory(ushort mipmap, ushort frame, ushort face, ushort slice)
+    {
+        return Path.Join(
+            BaseDir,
+            string.Format(Slug, mipmap, frame, face, slice)
+            );
+    }
+
+    /// <summary>
+    /// Gets a partially complete path with the frame remaining as a format string.
+    /// </summary>
+    /// <param name="mipmap"></param>
+    /// <param name="face"></param>
+    /// <param name="slice"></param>
+    /// <returns></returns>
+    public static string GetFrameFormatString(ushort mipmap, ushort face, ushort slice)
+    {
+        return Path.Join(
+            BaseDir,
+            string.Format(FrameSlug, mipmap, face, slice)
+        );
     }
 
     /// <summary>
