@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using ImageMagick;
 
 namespace SourceEngineTextureTool.Services.Image;
@@ -48,13 +50,16 @@ public class WriteOutOperation : Operation
     public required string Outfile;
 }
 
+/// <summary>
+/// Terminal operation. Writes a file, does not consume the file for the next input.
+/// </summary>
 public class CrunchOperation : Operation
 {
     public required ImageFormat Format;
     /// <summary>
     /// DXT1A alpha transparency threshold.
     /// </summary>
-    public byte AlphaThreashold = 127;
+    public byte AlphaThreashold = 128;
     public required string Outfile;
 
     public enum ImageFormat
@@ -191,8 +196,43 @@ public static class Conversion
 
     private static void CrunchMe(ref MagickImage img, ref readonly CrunchOperation operation)
     {
-        // TODO
-        throw new NotImplementedException();
+        string infile = PathManager.GetTempWorkPngFile();
+        Directory.CreateDirectory(PathManager.GetTempWorkDirectory());
+        img.Write(infile); // MagickImage cannot talk to the crunch binary, so write out and then read in.
+
+        string args = $" -file {infile}"
+                      + " -fileFormat dds -mipMode None "
+                      + (operation.Format == CrunchOperation.ImageFormat.DXT1A
+                          ? $" -alphaThreshold {operation.AlphaThreashold} "
+                          : "")
+                      + $" -{operation.Format.ToString()} " // Texture format
+                      + $" -out {operation.Outfile} ";
+            
+        CrunchExec(args);
+
+        #if !DEBUG
+        File.Delete(infile);
+        #endif
+    }
+
+    private static void CrunchExec(string args)
+    {
+        var psi = new ProcessStartInfo(ExternalDependencyManager.crunch, args)
+        {
+            UseShellExecute = false,
+            RedirectStandardInput = true,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            CreateNoWindow = true,
+            WindowStyle = ProcessWindowStyle.Hidden,
+        };
+
+        Process? p = Process.Start(psi);
+
+        if (p == null) throw new Exception("Crunch binary execution error.");
+        
+        // TODO: Threading solution to not block execution and report progress. Worthwhile?
+        p.WaitForExit(); // Block until program completes
     }
 
     private static void WriteOut(ref MagickImage img, ref readonly WriteOutOperation operation)
