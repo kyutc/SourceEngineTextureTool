@@ -100,9 +100,9 @@ public class CrunchOperation : Operation, IMultipleOutputs
 
 public static class Conversion
 {
-    public static void Run(string infile, ref readonly List<Operation> tasks)
+    public static void Run(string infile, List<Operation> tasks)
     {
-        Run([infile], in tasks);
+        Run([infile], tasks);
     }
     
     /// <summary>
@@ -111,7 +111,7 @@ public static class Conversion
     /// <param name="infiles"></param>
     /// <param name="tasks"></param>
     /// <exception cref="NotImplementedException"></exception>
-    public static void Run(string[] infiles, ref readonly List<Operation> tasks)
+    public static void Run(string[] infiles, List<Operation> tasks)
     {
         var imgs = new MagickImageCollection();
         foreach (var file in infiles)
@@ -121,7 +121,6 @@ public static class Conversion
             {
                 imgs.Add(frame);
             }
-            frames.Dispose();
         }
         
         imgs.Coalesce();
@@ -133,22 +132,22 @@ public static class Conversion
             switch (task)
             {
                 case AutocropOperation operation:
-                    Autocrop(ref imgs, ref operation);
+                    Autocrop(imgs, operation);
                     break;
                 case ScaleOperation operation:
-                    Scale(ref imgs, ref operation);
+                    Scale(imgs, operation);
                     break;
                 case CompositeOperation operation:
-                    Composite(ref imgs, ref operation);
+                    Composite(imgs, operation);
                     break;
                 case NormaliseToPng32:
-                    Normalise(ref imgs);
+                    Normalise(imgs);
                     break;
                 case CrunchOperation operation:
-                    CrunchMe(ref imgs, ref operation);
+                    CrunchMe(imgs, operation);
                     break;
                 case WriteOutOperation operation:
-                    WriteOut(ref imgs, ref operation);
+                    WriteOut(imgs, operation);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -159,7 +158,7 @@ public static class Conversion
     }
 
     // This might be superfluous as its own operation
-    private static void Normalise(ref MagickImageCollection imgs)
+    private static void Normalise(MagickImageCollection imgs)
     {
         foreach (MagickImage img in imgs)
         {
@@ -168,7 +167,7 @@ public static class Conversion
         }
     }
 
-    private static void Autocrop(ref MagickImageCollection imgs, ref readonly AutocropOperation operation)
+    private static void Autocrop(MagickImageCollection imgs, AutocropOperation operation)
     {
         foreach (MagickImage img in imgs)
         {
@@ -193,7 +192,7 @@ public static class Conversion
         } while (oldRes != (img.Width, img.Height));
     }
 
-    private static void Scale(ref MagickImageCollection imgs, ref readonly ScaleOperation operation)
+    private static void Scale(MagickImageCollection imgs, ScaleOperation operation)
     {
         foreach (MagickImage img in imgs)
         {
@@ -226,7 +225,7 @@ public static class Conversion
         }
     }
 
-    private static void Composite(ref MagickImageCollection imgs, ref readonly CompositeOperation operation)
+    private static void Composite(MagickImageCollection imgs, CompositeOperation operation)
     {
         var bg = new MagickImage(
             new MagickColor(operation.R, operation.G, operation.B, operation.A),
@@ -239,7 +238,7 @@ public static class Conversion
         bg.Dispose();
     }
 
-    private static void CrunchMe(ref MagickImageCollection imgs, ref readonly CrunchOperation operation)
+    private static void CrunchMe(MagickImageCollection imgs, CrunchOperation operation)
     {
         Directory.CreateDirectory(PathManager.GetTempWorkDirectory());
 
@@ -289,7 +288,7 @@ public static class Conversion
         p.WaitForExit(); // Block until program completes
     }
 
-    private static void WriteOut(ref MagickImageCollection imgs, ref readonly WriteOutOperation operation)
+    private static void WriteOut(MagickImageCollection imgs, WriteOutOperation operation)
     {
         uint index = operation.Start;
         foreach (MagickImage img in imgs)
