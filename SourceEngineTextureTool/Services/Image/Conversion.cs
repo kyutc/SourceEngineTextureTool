@@ -55,7 +55,7 @@ public class WriteOutOperation : Operation, IMultipleOutputs
 {
     public required string Outfile;
     public uint Start { get; set; } = 0;
-    public uint Wrap { get; set; } = int.MaxValue;
+    public uint Wrap { get; set; } = uint.MaxValue;
 }
 
 /// <summary>
@@ -71,7 +71,7 @@ public class CrunchOperation : Operation, IMultipleOutputs
     public required string Outfile;
 
     public uint Start { get; set; } = 0;
-    public uint Wrap { get; set; } = int.MaxValue;
+    public uint Wrap { get; set; } = uint.MaxValue;
 
     public enum ImageFormat
     {
@@ -102,7 +102,28 @@ public static class Conversion
 {
     public static void Run(string infile, ref readonly List<Operation> tasks)
     {
-        var imgs = new MagickImageCollection(infile);
+        Run([infile], in tasks);
+    }
+    
+    /// <summary>
+    /// Reads all frames from all input files. ex. a.gif and b.gif will result in a + b total frames.
+    /// </summary>
+    /// <param name="infiles"></param>
+    /// <param name="tasks"></param>
+    /// <exception cref="NotImplementedException"></exception>
+    public static void Run(string[] infiles, ref readonly List<Operation> tasks)
+    {
+        var imgs = new MagickImageCollection();
+        foreach (var file in infiles)
+        {
+            var frames = new MagickImageCollection(file);
+            foreach (var frame in frames)
+            {
+                imgs.Add(frame);
+            }
+            frames.Dispose();
+        }
+        
         imgs.Coalesce();
 
         // Task order matters, and tasks can be executed more than once
@@ -133,6 +154,8 @@ public static class Conversion
                     throw new NotImplementedException();
             }
         }
+        
+        imgs.Dispose();
     }
 
     // This might be superfluous as its own operation
@@ -150,7 +173,7 @@ public static class Conversion
         foreach (MagickImage img in imgs)
         {
             if (operation.Normalise)
-                NormalisedAutocrop(img); // Some kind of iterator voodoo means this is passed by reference even though it's not?
+                NormalisedAutocrop(img);
             else
                 img.Trim();
         }
@@ -213,6 +236,7 @@ public static class Conversion
         {
             img.Composite(bg, CompositeOperator.DstOver);
         }
+        bg.Dispose();
     }
 
     private static void CrunchMe(ref MagickImageCollection imgs, ref readonly CrunchOperation operation)
