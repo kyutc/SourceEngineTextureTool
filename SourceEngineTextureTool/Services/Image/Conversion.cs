@@ -100,7 +100,7 @@ public class CrunchOperation : Operation, IMultipleOutputs
 
 public static class Conversion
 {
-    public static void Run(string infile, List<Operation> tasks)
+    public static void Run(string infile, Operation[] tasks)
     {
         Run([infile], tasks);
     }
@@ -111,7 +111,7 @@ public static class Conversion
     /// <param name="infiles"></param>
     /// <param name="tasks"></param>
     /// <exception cref="NotImplementedException"></exception>
-    public static void Run(string[] infiles, List<Operation> tasks)
+    public static void Run(string[] infiles, Operation[] tasks)
     {
         var imgs = new MagickImageCollection();
         foreach (var file in infiles)
