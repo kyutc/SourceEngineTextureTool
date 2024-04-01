@@ -83,7 +83,7 @@ public class CrunchOperation : Operation, IMultipleOutputs
         // Note: formats without an overlap with VTF are commented out
         //_3DC,
         //DXN,
-        DXT5A, // Is this not the same thing as DXT5?
+        //DXT5A, // Is this not the same thing as DXT5?
         //DXT5_CCxY,
         //DXT5_xGxR,
         //DXT5_xGBR,
