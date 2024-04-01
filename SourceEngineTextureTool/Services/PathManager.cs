@@ -14,11 +14,8 @@ public static class PathManager
 
     static PathManager()
     {
-        BaseDir = Path.Join(
-            Path.GetTempPath(),
-            // Use PID to avoid clobbering other instances' data
-            "SETT_" + Environment.ProcessId
-        );
+        var dir = Directory.CreateTempSubdirectory("SETT_");
+        BaseDir = dir.FullName;
     }
 
     /// <summary>
