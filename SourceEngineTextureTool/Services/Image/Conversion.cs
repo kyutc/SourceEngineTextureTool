@@ -254,8 +254,6 @@ public static class Conversion
                     : "")
                 + $" -{operation.Format.ToString()} " // Texture format
                 + " -outsamedir -out converted.dds ";
-        
-        Console.WriteLine("Crunch CMD = {0}", args);
 
         CrunchExec(args);
         
