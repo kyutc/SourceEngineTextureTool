@@ -253,7 +253,7 @@ public static class Conversion
             // TODO: Crunch can accept multiple input files at once, but this will require manually renaming the outputs
             // TODO: No deduplication is done here; identical images will be reprocessed which will hurt performance
             string args = $" -file {infile}"
-                          + " -fileFormat dds -mipMode None "
+                          + " -fileFormat dds -mipMode None -helperThreads 8 "
                           + (operation.Format == CrunchOperation.ImageFormat.DXT1A
                               ? $" -alphaThreshold {operation.AlphaThreashold} "
                               : "")
