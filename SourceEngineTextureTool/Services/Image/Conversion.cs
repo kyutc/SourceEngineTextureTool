@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using ImageMagick;
@@ -61,17 +60,13 @@ public class WriteOutOperation : Operation, IMultipleOutputs
 /// <summary>
 /// Terminal operation. Writes a file, does not consume the file for the next input.
 /// </summary>
-public class CrunchOperation : Operation, IMultipleOutputs
+public class CrunchOperation : Operation
 {
     public required ImageFormat Format;
     /// <summary>
     /// DXT1A alpha transparency threshold.
     /// </summary>
     public byte AlphaThreashold = 128;
-    public required string Outfile;
-
-    public uint Start { get; set; } = 0;
-    public uint Wrap { get; set; } = uint.MaxValue;
 
     public enum ImageFormat
     {
@@ -239,31 +234,34 @@ public static class Conversion
 
     private static void CrunchMe(MagickImageCollection imgs, CrunchOperation operation)
     {
-        Directory.CreateDirectory(PathManager.GetTempWorkDirectory());
-
-        uint index = operation.Start;
+        string[] infiles = new string[imgs.Count];
+        string args = "";
+        int i = 0;
         foreach (MagickImage img in imgs)
         {
-            string infile = PathManager.GetTempWorkPngFile();
-            img.Write(infile); // MagickImage cannot talk to the crunch binary, so write out and then read in.
-            string outfile = string.Format(operation.Outfile, index++ % operation.Wrap);
-            Directory.CreateDirectory(Path.GetDirectoryName(outfile));
+            infiles[i] = Path.Join(Path.GetDirectoryName(img.FileName), "/converted.png"); // Lying because the file takes the name of the input
+            img.Write(infiles[i]); // MagickImage cannot talk to the crunch binary, so write out and then read in.
+            args += $" -file {infiles[i]} ";
+            i++;
+        }
+        
+        // TODO: No deduplication is done here; identical images (with different file paths) will be reprocessed which
+        // will hurt performance; current code pattern does not allow for deduplication here since each input must
+        // match 1:1 with an output. It will be the responsibility of the caller to do deduplication if it is desired.
+        args += " -fileFormat dds -mipMode None -helperThreads 8 "
+                + (operation.Format == CrunchOperation.ImageFormat.DXT1A
+                    ? $" -alphaThreshold {operation.AlphaThreashold} "
+                    : "")
+                + $" -{operation.Format.ToString()} " // Texture format
+                + " -outsamedir -out converted.dds ";
+        
+        Console.WriteLine("Crunch CMD = {0}", args);
 
-            // TODO: Crunch can accept multiple input files at once, but this will require manually renaming the outputs
-            // TODO: No deduplication is done here; identical images will be reprocessed which will hurt performance
-            string args = $" -file {infile}"
-                          + " -fileFormat dds -mipMode None -helperThreads 8 "
-                          + (operation.Format == CrunchOperation.ImageFormat.DXT1A
-                              ? $" -alphaThreshold {operation.AlphaThreashold} "
-                              : "")
-                          + $" -{operation.Format.ToString()} " // Texture format
-                          + $" -out {outfile} ";
-
-            CrunchExec(args);
-
-#if !DEBUG
-        File.Delete(infile);
-#endif
+        CrunchExec(args);
+        
+        foreach(var file in infiles)
+        { 
+            File.Delete(file);
         }
     }
 
@@ -271,10 +269,11 @@ public static class Conversion
     {
         var psi = new ProcessStartInfo(ExternalDependencyManager.crunch, args)
         {
-            UseShellExecute = false,
-            RedirectStandardInput = true,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
+            UseShellExecute = true,
+            // BUG: Redirecting streams causes poor performance / hanging. Unknown reason.
+            //RedirectStandardInput = true,
+            //RedirectStandardOutput = true,
+            //RedirectStandardError = true,
             CreateNoWindow = true,
             WindowStyle = ProcessWindowStyle.Hidden,
         };
