@@ -32,26 +32,6 @@ public static class PathManager
     }
 
     /// <summary>
-    /// Returns a random, unique file path.
-    /// </summary>
-    /// <returns></returns>
-    public static string GetTempWorkPngFile()
-    {
-        return Path.Join(
-            GetTempWorkDirectory(),
-            $"/{RandomNumberGenerator.GetInt32(Int32.MaxValue):X8}.png"
-            );
-    }
-    
-    public static string GetTempWorkDirectory()
-    {
-        return Path.Join(
-            BaseDir,
-            "/working/"
-        );
-    }
-
-    /// <summary>
     /// Path of the normalised input image after being imported
     /// </summary>
     /// <param name="mipmap"></param>
@@ -104,30 +84,6 @@ public static class PathManager
         return Path.Join(BaseDir,
             string.Format(FrameSlug, mipmap, face, slice),
             "preview.png"
-        );
-    }
-
-    /// <summary>
-    /// Path for the image which has been preprocessed (autocrop, compositing, scaling, etc.)
-    /// </summary>
-    /// <param name="mipmap"></param>
-    /// <param name="frame"></param>
-    /// <param name="face"></param>
-    /// <param name="slice"></param>
-    /// <returns>Full path to preprocessed PNG file</returns>
-    public static string PreprocessedImage(ushort mipmap, ushort frame, ushort face, ushort slice)
-    {
-        return Path.Join(BaseDir,
-            string.Format(Slug, mipmap, frame, face, slice),
-            "preprocessed.png"
-        );
-    }
-    
-    public static string PreprocessedImage(ushort mipmap, ushort face, ushort slice)
-    {
-        return Path.Join(BaseDir,
-            string.Format(FrameSlug, mipmap, face, slice),
-            "preprocessed.png"
         );
     }
     
