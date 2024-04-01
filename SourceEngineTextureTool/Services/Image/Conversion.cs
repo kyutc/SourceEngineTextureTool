@@ -117,6 +117,7 @@ public static class Conversion
         foreach (var file in infiles)
         {
             var frames = new MagickImageCollection(file);
+            frames.Coalesce(); // Redundant?
             foreach (var frame in frames)
             {
                 imgs.Add(frame);
@@ -218,19 +219,17 @@ public static class Conversion
 
             // Center the image and ensure the final size matches the user's request. Since this creates new pixels, a
             // background colour must be used.
-            img.BackgroundColor = new MagickColor(
-                operation.Background.R, operation.Background.G,
-                operation.Background.B, operation.Background.A);
-            img.Extent(operation.Width, operation.Height, Gravity.Center);
+            img.Extent(operation.Width, operation.Height, Gravity.Center,
+                new MagickColor(
+                    operation.Background.R, operation.Background.G,
+                    operation.Background.B, operation.Background.A));
         }
     }
 
     private static void Composite(MagickImageCollection imgs, CompositeOperation operation)
     {
-        var bg = new MagickImage(
-            new MagickColor(operation.R, operation.G, operation.B, operation.A),
-            imgs[0].Width,
-            imgs[0].Height);
+        var clr = new MagickColor(operation.R, operation.G, operation.B, operation.A);
+        var bg = new MagickImage(clr, imgs[0].Width, imgs[0].Height);
         foreach (MagickImage img in imgs)
         {
             img.Composite(bg, CompositeOperator.DstOver);
