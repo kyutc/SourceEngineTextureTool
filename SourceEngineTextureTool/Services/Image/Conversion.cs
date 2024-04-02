@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Security.Cryptography;
 using ImageMagick;
 
 namespace SourceEngineTextureTool.Services.Image;
@@ -44,18 +45,7 @@ public class CompositeOperation : Operation
     public required byte A;
 }
 
-public interface IMultipleOutputs
-{
-    public uint Start { get; set; }
-    public uint Wrap { get; set; }
-}
-
-public class WriteOutOperation : Operation, IMultipleOutputs
-{
-    public required string Outfile;
-    public uint Start { get; set; } = 0;
-    public uint Wrap { get; set; } = uint.MaxValue;
-}
+public class WriteOutOperation : Operation;
 
 /// <summary>
 /// Terminal operation. Writes a file, does not consume the file for the next input.
@@ -95,18 +85,27 @@ public class CrunchOperation : Operation
 
 public static class Conversion
 {
-    public static void Run(string infile, Operation[] tasks)
-    {
-        Run([infile], tasks);
-    }
+    private static readonly string BaseDir;
     
+    static Conversion()
+    {
+        var tmpdir = Directory.CreateTempSubdirectory("SETT_");
+        BaseDir = tmpdir.FullName;
+    }
+
+    public static void Run(string infile, ref string[]? outfiles, Operation[] tasks)
+    {
+        Run([infile], ref outfiles, tasks);
+    }
+
     /// <summary>
     /// Reads all frames from all input files. ex. a.gif and b.gif will result in a + b total frames.
     /// </summary>
     /// <param name="infiles"></param>
+    /// <param name="outfiles"></param>
     /// <param name="tasks"></param>
     /// <exception cref="NotImplementedException"></exception>
-    public static void Run(string[] infiles, Operation[] tasks)
+    public static void Run(string[] infiles, ref string[]? outfiles, Operation[] tasks)
     {
         var imgs = new MagickImageCollection();
         foreach (var file in infiles)
@@ -139,11 +138,31 @@ public static class Conversion
                 case NormaliseToPng32:
                     Normalise(imgs);
                     break;
-                case CrunchOperation operation:
-                    CrunchMe(imgs, operation);
+                case CrunchOperation operation: 
+                {
+                    var files = CrunchMe(imgs, operation);
+                    if (outfiles is null)
+                        outfiles = files;
+                    else
+                    {
+                        int oldlen = outfiles.Length;
+                        Array.Resize(ref outfiles, outfiles.Length + files.Length);
+                        files.CopyTo(outfiles, oldlen);
+                    }
+                }
                     break;
-                case WriteOutOperation operation:
-                    WriteOut(imgs, operation);
+                case WriteOutOperation:
+                {
+                    var files = WriteOut(imgs);
+                    if (outfiles is null)
+                        outfiles = files;
+                    else
+                    {
+                        int oldlen = outfiles.Length;
+                        Array.Resize(ref outfiles, outfiles.Length + files.Length);
+                        files.CopyTo(outfiles, oldlen);
+                    }
+                }
                     break;
                 default:
                     throw new NotImplementedException();
@@ -232,17 +251,17 @@ public static class Conversion
         bg.Dispose();
     }
 
-    private static void CrunchMe(MagickImageCollection imgs, CrunchOperation operation)
+    private static string[] CrunchMe(MagickImageCollection imgs, CrunchOperation operation)
     {
-        string[] infiles = new string[imgs.Count];
+        string[] infiles = WriteOut(imgs);
+        string[] outfiles = new string[infiles.Length];
+
         string args = "";
-        int i = 0;
-        foreach (MagickImage img in imgs)
+        foreach (var file in infiles)
         {
-            infiles[i] = Path.Join(Path.GetDirectoryName(img.FileName), "/converted.png"); // Lying because the file takes the name of the input
-            img.Write(infiles[i]); // MagickImage cannot talk to the crunch binary, so write out and then read in.
-            args += $" -file {infiles[i]} ";
-            i++;
+            // BUG: Theoretically with enough input files/a large temporary directory path, the length limit of the
+            // command line arguments could be reached. Crunch has an @file option for this purpose.
+            args += $" -file {file} ";
         }
         
         // TODO: No deduplication is done here; identical images (with different file paths) will be reprocessed which
@@ -253,14 +272,18 @@ public static class Conversion
                     ? $" -alphaThreshold {operation.AlphaThreashold} "
                     : "")
                 + $" -{operation.Format.ToString()} " // Texture format
-                + " -outsamedir -out converted.dds ";
+                + " -outsamedir ";
 
         CrunchExec(args);
         
-        foreach(var file in infiles)
-        { 
-            File.Delete(file);
+        for(int i = 0; i < infiles.Length; i++)
+        {
+            outfiles[i] = Path.Join(Path.GetDirectoryName(infiles[i]),
+                Path.GetFileNameWithoutExtension(infiles[i]) + ".dds");
+            File.Delete(infiles[i]);
         }
+
+        return outfiles;
     }
 
     private static void CrunchExec(string args)
@@ -284,14 +307,15 @@ public static class Conversion
         p.WaitForExit(); // Block until program completes
     }
 
-    private static void WriteOut(MagickImageCollection imgs, WriteOutOperation operation)
+    private static string[] WriteOut(MagickImageCollection imgs)
     {
-        uint index = operation.Start;
-        foreach (MagickImage img in imgs)
+        var outfiles = new string[imgs.Count];
+        for (int i = 0; i < imgs.Count; i++)
         {
-            string outfile = string.Format(operation.Outfile, index++ % operation.Wrap);
-            Directory.CreateDirectory(Path.GetDirectoryName(outfile));
-            img.Write(outfile);
+            outfiles[i] = Path.Join(BaseDir, RandomNumberGenerator.GetHexString(8) + ".png");
+            ((MagickImage)imgs[i]).Write(outfiles[i]);
         }
+
+        return outfiles;
     }
 }
