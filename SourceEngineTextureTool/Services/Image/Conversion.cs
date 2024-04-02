@@ -229,11 +229,10 @@ public static class Conversion
             }
 
             // Center the image and ensure the final size matches the user's request.
-            // FIXME: Extent was affecting transparent pixels rather than only making new pixels this background colour.
-            // We'll assume a composite operation will be used as a less-optimal fix. It'll have the same problem, but
-            // the operation is more explicit about what it's doing.
+            img.Compose = CompositeOperator.Copy;
             img.Extent(operation.Width, operation.Height, Gravity.Center,
-                new MagickColor(0, 0, 0, 0));
+                new MagickColor(new MagickColor(operation.Background.R, operation.Background.G, 
+                    operation.Background.B, operation.Background.A)));
         }
     }
 
