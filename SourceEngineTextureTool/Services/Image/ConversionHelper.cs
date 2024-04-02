@@ -87,13 +87,13 @@ public static class ConversionHelper
                 Sett.VtfImageFormat.DXT1A => CrunchOperation.ImageFormat.DXT1A,
                 Sett.VtfImageFormat.DXT3 => CrunchOperation.ImageFormat.DXT3,
                 Sett.VtfImageFormat.DXT5 => CrunchOperation.ImageFormat.DXT5,
-                Sett.VtfImageFormat.BGR888 => CrunchOperation.ImageFormat.R8G8B8, // TODO: Confirm correct
-                Sett.VtfImageFormat.BGR888_BLUESCREEN => CrunchOperation.ImageFormat.R8G8B8, // TODO: Confirm correct
-                Sett.VtfImageFormat.BGRA8888 => CrunchOperation.ImageFormat.A8R8G8B8, // TODO: Confirm correct
-                Sett.VtfImageFormat.BGRA8888_BLUESCREEN => CrunchOperation.ImageFormat.A8R8G8B8, // TODO: Confirm correct
+                Sett.VtfImageFormat.BGR888 => CrunchOperation.ImageFormat.R8G8B8,
+                Sett.VtfImageFormat.BGR888_BLUESCREEN => CrunchOperation.ImageFormat.R8G8B8,
+                Sett.VtfImageFormat.BGRA8888 => CrunchOperation.ImageFormat.A8R8G8B8,
+                Sett.VtfImageFormat.BGRA8888_BLUESCREEN => CrunchOperation.ImageFormat.A8R8G8B8,
                 Sett.VtfImageFormat.A8 => CrunchOperation.ImageFormat.A8,
                 Sett.VtfImageFormat.I8 => CrunchOperation.ImageFormat.L8,
-                Sett.VtfImageFormat.IA88 => CrunchOperation.ImageFormat.A8L8, // TODO: Confirm correct
+                Sett.VtfImageFormat.IA88 => CrunchOperation.ImageFormat.A8L8,
                 _ => throw new NotImplementedException(),
             },
             AlphaThreashold = settings.Dxt1aAlphaThreshold,
