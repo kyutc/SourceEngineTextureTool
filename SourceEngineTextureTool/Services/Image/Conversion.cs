@@ -39,10 +39,7 @@ public class ScaleOperation : Operation
 
 public class CompositeOperation : Operation
 {
-    public required byte R;
-    public required byte G;
-    public required byte B;
-    public required byte A;
+    public required (byte R, byte G, byte B, byte A) BackgroundColour;
 }
 
 public class WriteOutOperation : Operation;
@@ -61,9 +58,9 @@ public class CrunchOperation : Operation
     public enum ImageFormat
     {
         DXT1,
-        DXT2,
+        //DXT2,
         DXT3,
-        DXT4,
+        //DXT4,
         DXT5,
         // Note: formats without an overlap with VTF are commented out
         //_3DC,
@@ -242,7 +239,8 @@ public static class Conversion
 
     private static void Composite(MagickImageCollection imgs, CompositeOperation operation)
     {
-        var clr = new MagickColor(operation.R, operation.G, operation.B, operation.A);
+        var clr = new MagickColor(operation.BackgroundColour.R, operation.BackgroundColour.G,
+            operation.BackgroundColour.B, operation.BackgroundColour.A);
         var bg = new MagickImage(clr, imgs[0].Width, imgs[0].Height);
         foreach (MagickImage img in imgs)
         {
@@ -301,10 +299,12 @@ public static class Conversion
 
         Process? p = Process.Start(psi);
 
-        if (p == null) throw new Exception("Crunch binary execution error.");
+        if (p == null) throw new Exception("Crunch failed to start.");
         
         // TODO: Threading solution to not block execution and report progress. Worthwhile?
         p.WaitForExit(); // Block until program completes
+
+        if (p.ExitCode != 0) throw new Exception("Crunch returned an error.");
     }
 
     private static string[] WriteOut(MagickImageCollection imgs)
