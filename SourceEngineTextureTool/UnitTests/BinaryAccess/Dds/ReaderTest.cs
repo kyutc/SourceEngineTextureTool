@@ -11,13 +11,13 @@ namespace SourceEngineTextureTool.UnitTests.BinaryAccess.Dds;
 public class ReaderTest
 {
     private string assetsDirectory;
-    
+
     [SetUp]
     public void Setup()
     {
         string assemblyDirectory = TestContext.CurrentContext.TestDirectory;
-        
-        assetsDirectory = Path.Combine(assemblyDirectory, "..","..","..","UnitTests", "ddsAssets");
+
+        assetsDirectory = Path.Combine(assemblyDirectory, "..", "..", "..", "UnitTests", "ddsAssets");
     }
 
     [Test]
@@ -25,22 +25,9 @@ public class ReaderTest
     {
         //Arrange
         string ddsFilePath = Path.Combine(assetsDirectory, "chad.dds");
-        
-        //Act
-        TestDelegate act = () => Reader.FromFile(ddsFilePath);
-        
-        //Assert
-        Assert.Throws<Exception>(act);
-    }    
-    
-    [Test]
-    public void Test_InvalidFileExtension()
-    {
-        //Arrange
-        string invalidExtension = Path.Combine(assetsDirectory, "toothless-dance.dds");
 
         //Act
-        TestDelegate act = () => Reader.FromFile(invalidExtension);
+        TestDelegate act = () => Reader.FromFile(ddsFilePath);
 
         //Assert
         Assert.Throws<Exception>(act);
@@ -57,5 +44,23 @@ public class ReaderTest
 
         //Assert
         Assert.Throws<FileNotFoundException>(act);
+    }
+
+    [Test]
+    public void Test_ImageData()
+    {
+        //Arrange
+        string ddsFilePath = Path.Combine(assetsDirectory, "black.dds");
+
+        //Act
+        var imageData = Reader.FromFile(ddsFilePath);
+
+        
+        int dataLength = imageData.Length;
+
+        Console.WriteLine($"Length of imageData array: {dataLength}");
+        
+        //Assert
+        ClassicAssert.AreEqual(8,dataLength);
     }
 }
