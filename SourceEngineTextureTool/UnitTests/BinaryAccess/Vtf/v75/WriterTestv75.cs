@@ -1,5 +1,6 @@
 using System.Text;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using SourceEngineTextureTool.Services.BinaryAccess.Vtf;
 using SourceEngineTextureTool.Services.BinaryAccess.Vtf.v75;
 
@@ -8,13 +9,10 @@ namespace SourceEngineTextureTool.UnitTests.BinaryAccess.Vtf.v75;
 [TestFixture]
 public class WriterTestv75
 {
-    public string TestVtfFile = "test_file75.vtf";
+    // public string TestVtfFile = "test_file75.vtf";
     
-    [Test]
-    public void Test_v75Contents()
-    {
         //Arrange
-        var writer = new Writer
+        Writer writer = new()
         {
             Width = 0x00_80,
             Height = 0x00_80,
@@ -45,11 +43,79 @@ public class WriterTestv75
             ParticleSheet = null
         };
         
-       
-        //Act
-        writer.WriteOut(TestVtfFile);
-
-        //Assert
-        Assert.That(TestVtfFile, Does.Exist);
-    }
+        [Test]
+           public void Test_v75Version()
+           {
+               //Assert
+               ClassicAssert.AreEqual((7,5), writer.Version);
+           }
+           [Test]
+           public void Test_v75Width()
+           {
+               //Assert
+               ClassicAssert.AreEqual(128, writer.Width);
+           }
+           
+           [Test]
+           public void Test_v75Height()
+           {
+               //Assert
+               ClassicAssert.AreEqual(128, writer.Height);
+           }
+           
+           [Test]
+           public void Test_v75VtfFlags()
+           {
+               //Assert
+               ClassicAssert.AreEqual(8256, writer.VtfFlags);
+           }
+           
+           [Test]
+           public void Test_v75Frames()
+           {
+               //Assert
+               ClassicAssert.AreEqual(1, writer.Frames);
+           }
+           
+           [Test]
+           public void Test_v75FirstFrames()
+           {
+               //Assert
+               ClassicAssert.AreEqual(0, writer.FirstFrame);
+           }
+           
+           [Test]
+           public void Test_v75Reflectivity()
+           {
+               //Assert
+               ClassicAssert.AreEqual((1.0,0.5,1.0), writer.Reflectivity);
+           }
+           
+           [Test]
+           public void Test_v75BumpMapScale()
+           {
+               //Assert
+               ClassicAssert.AreEqual(1065353216, writer.BumpmapScale);
+           }
+           
+           [Test]
+           public void Test_v75MipMapCount()
+           {
+               //Assert
+               ClassicAssert.AreEqual(8, writer.MipmapCount);
+           }
+           
+           [Test]
+           public void Test_v75LowResWidth()
+           {
+               //Assert
+               ClassicAssert.AreEqual(16, writer.LowResWidth);
+           }
+           
+           [Test]
+           public void Test_v75LowResHeight()
+           {
+               //Assert
+               ClassicAssert.AreEqual(16, writer.LowResHeight);
+           }
 }

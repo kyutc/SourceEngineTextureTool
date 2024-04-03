@@ -1,5 +1,6 @@
 using System.Text;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using SourceEngineTextureTool.Services.BinaryAccess.Vtf;
 using SourceEngineTextureTool.Services.BinaryAccess.Vtf.v70;
 
@@ -8,13 +9,9 @@ namespace SourceEngineTextureTool.UnitTests.BinaryAccess.Vtf.v70;
 [TestFixture]
 public class WriterTestv70
 {
-    public string TestVtfFile = "test_file70.vtf";
+    // public string TestVtfFile = "test_file70.vtf";
 
-    [Test]
-    public void Test_v70Contents()
-    {
-        //Arrange
-        var writer = new Writer
+        Writer writer = new()
         {
             Width = 0x00_80,
             Height = 0x00_80,
@@ -31,12 +28,80 @@ public class WriterTestv70
             LowResData = Encoding.ASCII.GetBytes("AAAA"),
             HighResData = Encoding.ASCII.GetBytes("BBBB"),
         };
-
-        //Act
-        writer.WriteOut(TestVtfFile);
-
-        //Assert
-        Assert.That(TestVtfFile, Does.Exist);
+        
+            [Test]
+           public void Test_v70Version()
+           {
+               //Assert
+               ClassicAssert.AreEqual((7,0), writer.Version);
+           }
+           [Test]
+           public void Test_v70Width()
+           {
+               //Assert
+               ClassicAssert.AreEqual(128, writer.Width);
+           }
+           
+           [Test]
+           public void Test_v70Height()
+           {
+               //Assert
+               ClassicAssert.AreEqual(128, writer.Height);
+           }
+           
+           [Test]
+           public void Test_v70VtfFlags()
+           {
+               //Assert
+               ClassicAssert.AreEqual(8256, writer.VtfFlags);
+           }
+           
+           [Test]
+           public void Test_v70Frames()
+           {
+               //Assert
+               ClassicAssert.AreEqual(1, writer.Frames);
+           }
+           
+           [Test]
+           public void Test_v70FirstFrames()
+           {
+               //Assert
+               ClassicAssert.AreEqual(0, writer.FirstFrame);
+           }
+           
+           [Test]
+           public void Test_v70Reflectivity()
+           {
+               //Assert
+               ClassicAssert.AreEqual((0.189700007f, 0.391600013f, 0.552200019f), writer.Reflectivity);
+           }
+           
+           [Test]
+           public void Test_v70BumpMapScale()
+           {
+               //Assert
+               ClassicAssert.AreEqual(1.0, writer.BumpmapScale);
+           }
+           
+           [Test]
+           public void Test_v70MipMapCount()
+           {
+               //Assert
+               ClassicAssert.AreEqual(8, writer.MipmapCount);
+           }
+           
+           [Test]
+           public void Test_v70LowResWidth()
+           {
+               //Assert
+               ClassicAssert.AreEqual(16, writer.LowResWidth);
+           }
+           
+           [Test]
+           public void Test_v70LowResHeight()
+           {
+               //Assert
+               ClassicAssert.AreEqual(16, writer.LowResHeight);
+           }
     }
-    
-}
