@@ -6,7 +6,8 @@ namespace SourceEngineTextureTool.Models.Settings;
 // TODO: Complete this for all the needed data stores on the frontend
 public class Vtf
 {
-    // TODO: Validate supported version entered
+    // TODO: Merge conflict.
+    public (uint Major, uint Minor) Version = (7, 1);
     public Version VtfVersion = Version.VTF_7_1;
     
     public ushort Width = 512;
@@ -14,7 +15,16 @@ public class Vtf
 
     public Format FormatOption = Format.DXT1;
     
-    public Flags FlagsOption = 0;
+    public uint FlagsOption = 0;
+
+    public float BumpmapScale = 1.0f;
+
+    public ushort FirstFrame = 0;
+
+    public byte LowResWidth = 0;
+    public byte LowResHeight = 0;
+
+    public (float R, float G, float B) Reflectivity = (0.5f, 0.5f, 0.5f);
     
     public enum Version
     {
