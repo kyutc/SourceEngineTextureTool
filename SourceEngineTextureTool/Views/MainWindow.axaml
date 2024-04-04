@@ -126,8 +126,6 @@
                                         <Label Content="Mipmaps" />
                                         <StackPanel Orientation="Horizontal">
                                             <Label Content="{Binding MipmapCount}" />
-                                            <CheckBox IsChecked="{Binding GenerateMipmaps}"
-                                                      Content="Generate Mipmaps" />
                                         </StackPanel>
                                     </StackPanel>
                                 </Grid>

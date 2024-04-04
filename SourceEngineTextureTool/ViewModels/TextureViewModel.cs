@@ -79,8 +79,8 @@ public class TextureViewModel : ViewModelBase
         Texture = texture ?? new Texture();
         TextureResolution = Texture.Resolution;
         FrameCount = Texture.FrameCount;
-        GenerateMipmaps = true;
         MipmapSourcePropagationStrategy = _reactivePropertyPropagatorManager.PropagationStrategy;
+        GenerateMipmaps = MipmapSourcePropagationStrategy != PropagationStrategy.DoNotPropagate;
         MipmapViewModels = new();
 
         this.WhenAnyValue(tvm => tvm.Texture)
@@ -129,7 +129,18 @@ public class TextureViewModel : ViewModelBase
         this.WhenAnyValue(tvm => tvm.MipmapSourcePropagationStrategy)
             .Skip(1)
             .Subscribe(propagationStrategy =>
-                _reactivePropertyPropagatorManager.PropagationStrategy = propagationStrategy);
+            {
+                _reactivePropertyPropagatorManager.PropagationStrategy = propagationStrategy;
+                if (GenerateMipmaps && propagationStrategy == PropagationStrategy.DoNotPropagate)
+                {
+                    // Bug: The text block that displays the resolution for the 0th mipmap will occlude when GenerateMipmaps is set to false in this manner. It still exists, has the correct properties set, and may display again upon subsequent renders.
+                    GenerateMipmaps = false;
+                }
+                else if (!GenerateMipmaps && propagationStrategy != PropagationStrategy.DoNotPropagate)
+                {
+                    GenerateMipmaps = true;
+                }
+            });
 
         Refresh();
     }
