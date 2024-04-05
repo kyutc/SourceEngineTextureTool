@@ -1,20 +1,197 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:v="using:SourceEngineTextureTool.Views"
         xmlns:vm="using:SourceEngineTextureTool.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="SourceEngineTextureTool.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="AvaloniaApplication1">
+        Icon="/Assets/SETTLogo.ico"
+        Title="Source Engine Texture Tool">
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainWindowViewModel/>
+        <vm:MainWindowViewModel />
     </Design.DataContext>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Window.Styles>
+        <Style Selector="Menu.MenuBar">
+            <Setter Property="Background" Value="#585858" />
+        </Style>
+        <Style Selector="Grid.SideBar">
+            <Setter Property="Background" Value="#1c1c1c" />
+        </Style>
+
+    </Window.Styles>
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Menu bar -->
+        <Menu Classes="MenuBar" Grid.Row="0">
+            <Menu.Styles>
+                <Style Selector="MenuItem">
+                    <Setter Property="Foreground" Value="White" />
+                </Style>
+                <Style Selector="MenuItem > Popup" />
+                <Style Selector="MenuItem MenuItem">
+                    <Setter Property="Background" Value="#353535" />
+                </Style>
+            </Menu.Styles>
+            <MenuItem Header="File">
+                <MenuItem Header="New" />
+                <Separator />
+                <MenuItem Header="Exit" />
+            </MenuItem>
+            <MenuItem Header="View">
+                <MenuItem Header="Preview" />
+            </MenuItem>
+            <MenuItem Header="Help">
+                <MenuItem Header="About" />
+                <MenuItem Header="Help" />
+            </MenuItem>
+        </Menu>
+
+        <!-- Main content -->
+        <SplitView Grid.Row="1" IsPaneOpen="True" DisplayMode="Inline" OpenPaneLength="300">
+
+            <!-- Sidebar container -->
+            <SplitView.Pane>
+                <!-- Sidebar -->
+                <!-- Todo: resize pane length to widest child or wrap sidebar with viewbox -->
+                <Grid Classes="SideBar" RowDefinitions="Auto,Auto,*">
+
+                    <!-- Sidebar styles -->
+                    <Grid.Styles>
+                        <Style Selector="Grid > Border">
+                            <Setter Property="BorderThickness" Value="1" />
+                            <Setter Property="BorderBrush" Value="#2b2b2b" />
+                            <Setter Property="Padding" Value="10 5" />
+                        </Style>
+
+                        <Style Selector="Button,ToggleButton">
+                            <Setter Property="FontSize" Value="20" />
+                            <Setter Property="Foreground" Value="#f6f6f6" />
+                            <Setter Property="Padding" Value="10 5" />
+                            <Setter Property="HorizontalAlignment" Value="Stretch" />
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                        </Style>
+                        <Style Selector="Button#Export">
+                            <Setter Property="Background" Value="#ce2bff" />
+                        </Style>
+                        <Style Selector="ToggleButton#Preview">
+                            <Setter Property="Background" Value="#6b008b" />
+                        </Style>
+                        <Style Selector="Label">
+                            <Setter Property="Foreground" Value="#f6f6f6" />
+                        </Style>
+                    </Grid.Styles>
+
+                    <!-- Texture properties -->
+                    <Border Grid.Row="0" DataContext="{Binding TextureViewModel}">
+                        <StackPanel>
+                            <Border>
+                                <Grid ColumnDefinitions="*,*">
+                                    <StackPanel Grid.Column="0">
+                                        <Label Content="Res X" />
+                                        <NumericUpDown x:Name="TextureWidthControl"
+                                                       Value="{Binding ResolutionWidth}"
+                                                       Minimum="1" Maximum="65536"
+                                                       Increment="1"
+                                                       ParsingNumberStyle="Integer" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1">
+                                        <Label Content="Res Y" />
+                                        <NumericUpDown x:Name="TextureHeightControl"
+                                                       Value="{Binding ResolutionHeight}"
+                                                       Minimum="1" Maximum="65536"
+                                                       Increment="1"
+                                                       ParsingNumberStyle="Integer" />
+                                    </StackPanel>
+                                </Grid>
+                                
+                            </Border>
+                            
+                            <Border>
+                                <Grid ColumnDefinitions="*,*">
+                                    <StackPanel Grid.Column="0">
+                                        <Label Content="Frames" />
+                                        <NumericUpDown x:Name="TextureFrameCountControl"
+                                                       Value="{Binding FrameCount}"
+                                                       Minimum="1" Maximum="65536"
+                                                       Increment="1"
+                                                       ParsingNumberStyle="Integer" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1">
+                                        <Label Content="Mipmaps" />
+                                        <StackPanel Orientation="Horizontal">
+                                            <Label Content="{Binding MipmapCount}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                            <Border>
+                                <StackPanel>
+                                    <Label Content="Generate mipmaps from: "/>
+                                    <ComboBox Grid.Column="1"
+                                              ItemsSource="{Binding SupportedPropagationStrategies}"
+                                              SelectedItem="{Binding MipmapSourcePropagationStrategy}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding ., Converter={StaticResource DisplayNameConverter}}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Export Actions -->
+                    <Border Grid.Row="1">
+                        <Grid ColumnDefinitions="*,*">
+                            <ToggleButton Grid.Column="0"
+                                          Name="Preview"
+                                          DataContext="{Binding ProjectSettingsViewModel}"
+                                          IsChecked="{Binding EnableCompiledTexturePreview}"
+                                          Content="Preview" />
+                            <Button Grid.Column="1" Name="Export" Content="Export" />
+                        </Grid>
+                    </Border>
+
+                    <v:ProjectSettings Grid.Row="2"
+                                       DataContext="{Binding ProjectSettingsViewModel}" />
+                </Grid>
+            </SplitView.Pane>
+
+            <!-- Texture Workspace -->
+            <Border>
+                <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto,*">
+                    <!-- x-axis label -->
+                    <Border Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Background="Blue">
+                        <TextBlock Text="Frame" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <!-- y-axis label -->
+                    <Border Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Background="Green">
+                        <LayoutTransformControl VerticalAlignment="Center">
+                            <!-- Rotate the label text -->
+                            <LayoutTransformControl.LayoutTransform>
+                                <RotateTransform Angle="270" />
+                            </LayoutTransformControl.LayoutTransform>
+                            <TextBlock Text="Mipmap" />
+                        </LayoutTransformControl>
+                    </Border>
+
+                    <Border Grid.Column="1" Grid.Row="1">
+                        <ScrollViewer AllowAutoHide="False" HorizontalScrollBarVisibility="Auto">
+                            <v:TextureWorkspace DataContext="{Binding TextureViewModel}" />
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+            </Border>
+
+        </SplitView>
+
+    </Grid>
 
 </Window>

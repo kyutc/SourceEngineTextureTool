@@ -1,8 +1,16 @@
-﻿namespace SourceEngineTextureTool.ViewModels;
+﻿using ReactiveUI.Fody.Helpers;
+
+namespace SourceEngineTextureTool.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase
 {
-#pragma warning disable CA1822 // Mark members as static
-    public string Greeting => "Welcome to Avalonia!";
-#pragma warning restore CA1822 // Mark members as static
+    [Reactive] public ProjectSettingsViewModel ProjectSettingsViewModel { get; set; }
+
+    [Reactive] public TextureViewModel TextureViewModel { get; set; }
+
+    public MainWindowViewModel()
+    {
+        TextureViewModel = new();
+        ProjectSettingsViewModel = new();
+    }
 }
