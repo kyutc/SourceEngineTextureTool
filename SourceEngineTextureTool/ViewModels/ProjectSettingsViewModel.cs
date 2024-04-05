@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive.Linq;
 using DynamicData;
 using DynamicData.Binding;
 using EnumsNET;
@@ -96,7 +97,16 @@ public class ProjectSettingsViewModel : ViewModelBase
     public IReadOnlyList<Vtf.Flags> OptionalVTFFlags { get; } = Enums.GetValues<Vtf.Flags>();
 
     #endregion VTF Settings
+    
+    #region GUI Settings
 
+    /// <summary>
+    /// Gets/sets whether the imported image or the formatted image should be displayed in the workspace.
+    /// </summary>
+    [Reactive] public bool EnableCompiledTexturePreview { get; set; }
+
+    #endregion GUI Settings
+    
     public ProjectSettingsViewModel(Sett? settSettings = null, Vtf? vtfSettings = null)
     {
         SettSettings = settSettings ?? new();
@@ -158,5 +168,14 @@ public class ProjectSettingsViewModel : ViewModelBase
 
         this.WhenAnyValue(psvm => psvm.SelectedVtfImageFormat)
             .Subscribe(newVtfImageFormat => VtfSettings.FormatOption = newVtfImageFormat);
+
+        this.WhenAnyValue(tvm => tvm.EnableCompiledTexturePreview)
+            .Skip(1)
+            .Subscribe(enableCompiledTexturePreview =>
+            {
+                // Todo: Implement functionality for the Preview button
+                // Invoke singleton factory service to change the Source property of each DropImageViewModel to their
+                // DropImage's ImportedImage or PreviewImage property depending on this value
+            });
     }
 }

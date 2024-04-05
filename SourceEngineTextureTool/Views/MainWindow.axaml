@@ -69,7 +69,7 @@
                             <Setter Property="Padding" Value="10 5" />
                         </Style>
 
-                        <Style Selector="Button">
+                        <Style Selector="Button,ToggleButton">
                             <Setter Property="FontSize" Value="20" />
                             <Setter Property="Foreground" Value="#f6f6f6" />
                             <Setter Property="Padding" Value="10 5" />
@@ -79,7 +79,7 @@
                         <Style Selector="Button#Export">
                             <Setter Property="Background" Value="#ce2bff" />
                         </Style>
-                        <Style Selector="Button#Preview">
+                        <Style Selector="ToggleButton#Preview">
                             <Setter Property="Background" Value="#6b008b" />
                         </Style>
                         <Style Selector="Label">
@@ -150,7 +150,11 @@
                     <!-- Export Actions -->
                     <Border Grid.Row="1">
                         <Grid ColumnDefinitions="*,*">
-                            <Button Grid.Column="0" Name="Preview" Content="Preview" />
+                            <ToggleButton Grid.Column="0"
+                                          Name="Preview"
+                                          DataContext="{Binding ProjectSettingsViewModel}"
+                                          IsChecked="{Binding EnableCompiledTexturePreview}"
+                                          Content="Preview" />
                             <Button Grid.Column="1" Name="Export" Content="Export" />
                         </Grid>
                     </Border>
