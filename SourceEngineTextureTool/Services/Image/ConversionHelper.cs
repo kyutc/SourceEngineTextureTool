@@ -38,7 +38,7 @@ public static class ConversionHelper
         
         tasks.Add(new NormaliseToPng32());
 
-        switch (settings.Autocrop)
+        switch (settings.AutocropModeOption)
         {
             case Sett.AutocropMode.Autocrop:
                 tasks.Add(new AutocropOperation());

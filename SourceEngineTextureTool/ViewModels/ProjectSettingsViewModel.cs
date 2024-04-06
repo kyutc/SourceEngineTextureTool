@@ -63,9 +63,9 @@ public class ProjectSettingsViewModel : ViewModelBase
     /// <summary>
     /// Gets/sets the target VTF version for this texture.
     /// </summary>
-    [Reactive] public Vtf.Version SelectedVtfVersion { get; set; }
+    [Reactive] public Vtf.VersionEnum SelectedVtfVersion { get; set; }
 
-    public IReadOnlyList<Vtf.Version> SupportedVTFVersions { get; } = Enums.GetValues<Vtf.Version>();
+    public IReadOnlyList<Vtf.VersionEnum> SupportedVTFVersions { get; } = Enums.GetValues<Vtf.VersionEnum>();
 
     /// <summary>
     /// Gets/sets the image format to use when converting input files to DDS.

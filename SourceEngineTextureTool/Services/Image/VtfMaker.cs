@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
-using SourceEngineTextureTool.Services.BinaryAccess.Vtf;
 using Writer70 = SourceEngineTextureTool.Services.BinaryAccess.Vtf.v70.Writer;
 using Writer71 = SourceEngineTextureTool.Services.BinaryAccess.Vtf.v71.Writer;
 using Writer72 = SourceEngineTextureTool.Services.BinaryAccess.Vtf.v72.Writer;
@@ -102,14 +101,14 @@ public static class VtfMaker
 
         writer.Width = settings.Width;
         writer.Height = settings.Height;
-        writer.VtfFlags = settings.Flags;
+        writer.VtfFlags = (uint)settings.FlagsOption;
         writer.Frames = (ushort)frames;
         writer.FirstFrame = settings.FirstFrame;
         writer.Reflectivity = settings.Reflectivity;
         writer.BumpmapScale = settings.BumpmapScale;
-        writer.HighResFormat = settings.FormatOption;
+        writer.HighResFormat = (uint)settings.FormatOption;
         writer.MipmapCount = (byte)mipmaps;
-        writer.LowResFormat = lowResData.Length == 0 ? Format.NONE : Format.DXT1; // Low res is always DXT1 if present
+        writer.LowResFormat = (uint)(lowResData.Length == 0 ? Models.Settings.Vtf.Format.NONE : Models.Settings.Vtf.Format.DXT1); // Low res is always DXT1 if present
         writer.LowResWidth = settings.LowResWidth;
         writer.LowResHeight = settings.LowResHeight;
 

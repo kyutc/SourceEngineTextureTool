@@ -8,14 +8,14 @@ public class Vtf
 {
     // TODO: Merge conflict.
     public (uint Major, uint Minor) Version = (7, 1);
-    public Version VtfVersion = Version.VTF_7_1;
+    public VersionEnum VtfVersion = VersionEnum.VTF_7_1;
     
     public ushort Width = 512;
     public ushort Height = 512;
 
     public Format FormatOption = Format.DXT1;
     
-    public uint FlagsOption = 0;
+    public Flags FlagsOption = 0; // TODO: Is this wrong?
 
     public float BumpmapScale = 1.0f;
 
@@ -26,7 +26,7 @@ public class Vtf
 
     public (float R, float G, float B) Reflectivity = (0.5f, 0.5f, 0.5f);
     
-    public enum Version
+    public enum VersionEnum
     {
         [Display(Name = "VTF 7.1")] VTF_7_1 = 1,
         [Display(Name = "VTF 7.2")] VTF_7_2,
