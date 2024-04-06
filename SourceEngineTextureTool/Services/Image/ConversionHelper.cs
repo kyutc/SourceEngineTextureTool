@@ -52,7 +52,7 @@ public static class ConversionHelper
             case Sett.AutocropMode.None:
                 break;
             default:
-                break;
+                throw new NotImplementedException();
         }
         
         tasks.Add(new ScaleOperation
