@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using Writer70 = SourceEngineTextureTool.Services.BinaryAccess.Vtf.v70.Writer;
 using Writer71 = SourceEngineTextureTool.Services.BinaryAccess.Vtf.v71.Writer;
@@ -42,11 +45,11 @@ public static class VtfMaker
         int faces = highresFiles.GetLength(2);
         int slices = highresFiles.GetLength(3);
 
-        if (settings.Version.Major != 7)
-            throw new Exception($"Invalid VTF version: {settings.Version.Major}.{settings.Version.Minor}");
-        
-        if (settings.Version.Minor is < 0 or > 5) // 7.6 is an unofficial version, so we're not going to support it.
-            throw new Exception($"Invalid VTF version: {settings.Version.Major}.{settings.Version.Minor}");
+        // TODO: Does this need to be so convoluted?
+        string versionString = typeof(Models.Settings.Vtf.VersionEnum).GetField(settings.VtfVersion.ToString()).GetCustomAttribute<DisplayAttribute>(false).Name;
+
+        if (settings.VtfVersion is > Models.Settings.Vtf.VersionEnum.VTF_7_5 or < Models.Settings.Vtf.VersionEnum.VTF_7_0)
+            throw new Exception($"Invalid version: {versionString}");
 
         // Face count must be 1, 6, or 7.
         switch (faces)
@@ -57,7 +60,7 @@ public static class VtfMaker
             case 7: // Weird 7-face cubemap (VTF version 7.4 or lower. Not supported in 7.5+?)
                 if (settings.FirstFrame != ushort.MaxValue)
                     throw new Exception($"Got 7 faces, but first frame was {settings.FirstFrame}. Should be -1.");
-                if (settings.Version is { Major: 7, Minor: >= 5 })
+                if (settings.VtfVersion >= Models.Settings.Vtf.VersionEnum.VTF_7_5)
                     throw new Exception("A 7-faced cubemap is not supported on VTF version 7.5+");
                 break;
             default:
@@ -88,15 +91,15 @@ public static class VtfMaker
             }
         }
 
-        var writer = settings.Version switch
+        var writer = settings.VtfVersion switch
         {
-            (Major: 7, Minor: 0) => new Writer70(),
-            (Major: 7, Minor: 1) => new Writer71(),
-            (Major: 7, Minor: 2) => new Writer72(),
-            (Major: 7, Minor: 3) => new Writer73(),
-            (Major: 7, Minor: 4) => new Writer74(),
-            (Major: 7, Minor: 5) => new Writer75(),
-            _ => throw new Exception($"Unsupported VTF version: {settings.Version.Major}.{settings.Version.Minor}"),
+            Models.Settings.Vtf.VersionEnum.VTF_7_0 => new Writer70(),
+            Models.Settings.Vtf.VersionEnum.VTF_7_1 => new Writer71(),
+            Models.Settings.Vtf.VersionEnum.VTF_7_2 => new Writer72(),
+            Models.Settings.Vtf.VersionEnum.VTF_7_3 => new Writer73(),
+            Models.Settings.Vtf.VersionEnum.VTF_7_4 => new Writer74(),
+            Models.Settings.Vtf.VersionEnum.VTF_7_5 => new Writer75(),
+            _ => throw new Exception($"Unsupported version: {versionString}"),
         };
 
         writer.Width = settings.Width;
@@ -140,28 +143,28 @@ public static class VtfMaker
         string outfile = Path.Join(BaseDir, RandomNumberGenerator.GetHexString(8) + ".vtf");
         
         // TODO: There must surely be a better way...
-        switch (settings.Version)
+        switch (settings.VtfVersion)
         {
-            case (Major: 7, Minor: 0):
+            case Models.Settings.Vtf.VersionEnum.VTF_7_0:
                 ((Writer70)writer).WriteOut(outfile);
                 break;
-            case (Major: 7, Minor: 1):
+            case Models.Settings.Vtf.VersionEnum.VTF_7_1:
                 ((Writer71)writer).WriteOut(outfile);
                 break;
-            case (Major: 7, Minor: 2):
+            case Models.Settings.Vtf.VersionEnum.VTF_7_2:
                 ((Writer72)writer).WriteOut(outfile);
                 break;
-            case (Major: 7, Minor: 3):
+            case Models.Settings.Vtf.VersionEnum.VTF_7_3:
                 ((Writer73)writer).WriteOut(outfile);
                 break;
-            case (Major: 7, Minor: 4):
+            case Models.Settings.Vtf.VersionEnum.VTF_7_4:
                 ((Writer74)writer).WriteOut(outfile);
                 break;
-            case (Major: 7, Minor: 5):
+            case Models.Settings.Vtf.VersionEnum.VTF_7_5:
                 ((Writer75)writer).WriteOut(outfile);
                 break;
             default:
-                throw new Exception($"Unsupported VTF version: {settings.Version.Major}.{settings.Version.Minor}");
+                throw new Exception($"Unsupported version: {versionString}");
         };
         
         return outfile;

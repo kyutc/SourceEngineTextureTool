@@ -6,8 +6,6 @@ namespace SourceEngineTextureTool.Models.Settings;
 // TODO: Complete this for all the needed data stores on the frontend
 public class Vtf
 {
-    // TODO: Merge conflict.
-    public (uint Major, uint Minor) Version = (7, 1);
     public VersionEnum VtfVersion = VersionEnum.VTF_7_1;
     
     public ushort Width = 512;
@@ -15,7 +13,7 @@ public class Vtf
 
     public Format FormatOption = Format.DXT1;
     
-    public Flags FlagsOption = 0; // TODO: Is this wrong?
+    public Flags FlagsOption = 0;
 
     public float BumpmapScale = 1.0f;
 
@@ -28,7 +26,8 @@ public class Vtf
     
     public enum VersionEnum
     {
-        [Display(Name = "VTF 7.1")] VTF_7_1 = 1,
+        [Display(Name = "VTF 7.0")] VTF_7_0 = 0,
+        [Display(Name = "VTF 7.1")] VTF_7_1,
         [Display(Name = "VTF 7.2")] VTF_7_2,
         [Display(Name = "VTF 7.3")] VTF_7_3,
         [Display(Name = "VTF 7.4")] VTF_7_4,
