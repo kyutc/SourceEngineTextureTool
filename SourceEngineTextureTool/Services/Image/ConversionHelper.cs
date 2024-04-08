@@ -31,6 +31,20 @@ public static class ConversionHelper
         return outfiles;
     }
 
+    /// <summary>
+    /// Create a preview image from a normalized image.
+    /// </summary>
+    /// <param name="file">The PNG32 file to process</param>
+    /// <param name="width">The target width of the output</param>
+    /// <param name="height">The target height of the output</param>
+    /// <param name="settSettings">The application settings to use</param>
+    /// <param name="vtfSettings">The vtf settings to use.</param>
+    /// <returns>A path to the newly created preview image.</returns>
+    public static string CreatePreview(string file, int width, int height, Sett settSettings, Vtf vtfSettings)
+    {
+        throw new NotImplementedException();
+    }
+    
     public static string[] Convert(string[] files, int width, int height, Models.Settings.Sett settings)
     {
         string[] outfiles = null;
