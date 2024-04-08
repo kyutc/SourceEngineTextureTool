@@ -31,6 +31,11 @@ public static class ConversionHelper
         return outfiles;
     }
 
+    public static string[] Convert(string file, int width, int height, Models.Settings.Sett settings)
+    {
+        return Convert([file], width, height, settings);
+    }
+
     public static string[] Convert(string[] files, int width, int height, Models.Settings.Sett settings)
     {
         string[] outfiles = null;
