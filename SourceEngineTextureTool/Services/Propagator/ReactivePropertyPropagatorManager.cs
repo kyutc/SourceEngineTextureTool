@@ -42,11 +42,13 @@ public class ReactivePropertyPropagatorManager
     /// provided list and expression.
     /// </summary>
     /// <param name="items">The items to watch.</param>
-    /// <param name="property">The expression used to access the property to propagate.</param>
+    /// <param name="fromProperty">The expression used to access the property to propagate from.</param>
+    /// <param name="toProperty">The expression used to access the property to propagate to. Defaults to fromProperty if provided null.</param>
     /// <typeparam name="TSource">Subclass of <see cref="ReactiveObject"/>.</typeparam>
     /// <typeparam name="TPropertyValue">The type of the property being propagated.</typeparam>
-    public void InitializePropertyPropagationSequence<TSource, TPropertyValue>(IEnumerable<TSource> items,
-        Expression<Func<TSource, TPropertyValue>> property)
+    public void InitializePropertyPropagationSequence<TSource, TPropertyValue>(IList<TSource> items,
+        Expression<Func<TSource, TPropertyValue>> fromProperty,
+        Expression<Func<TSource, TPropertyValue>>? toProperty = null)
         where TSource : ReactiveObject
     {
         if (items.Count() < 2)
@@ -54,8 +56,11 @@ public class ReactivePropertyPropagatorManager
             return; // At least 2 needed for a sequence
         }
 
+        if (toProperty == null) toProperty = fromProperty;
+
         var newReactivePropertyPropagators =
-            new ReactivePropertyPropagationSequence<TSource, TPropertyValue>(items, property, PropagationStrategy);
+            new ReactivePropertyPropagationSequence<TSource, TPropertyValue>(items, fromProperty, toProperty,
+                PropagationStrategy);
         _reactivePropertyPropagatorSequences.Add(newReactivePropertyPropagators);
     }
 }

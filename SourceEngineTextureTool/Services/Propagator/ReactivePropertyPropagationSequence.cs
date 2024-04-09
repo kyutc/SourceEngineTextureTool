@@ -21,17 +21,19 @@ public class ReactivePropertyPropagationSequence<TSource, TPropertyValue> : IPro
     /// Creates an immutable series of <see cref="ReactivePropertyPropagator{TSource,TPropertyValue}"/>.
     /// </summary>
     /// <param name="items">The items to propagate to/from.</param>
-    /// <param name="expression">The expression to access the property being propagated.</param>
+    /// <param name="fromProperty">The expression to access the property being propagated from.</param>
+    /// <param name="toProperty">The expression to access the property being propagated to.</param>
     /// <param name="propagationStrategy">How changes should propagate through the items.</param>
     public ReactivePropertyPropagationSequence(
         IEnumerable<TSource> items,
-        Expression<Func<TSource, TPropertyValue>> expression,
+        Expression<Func<TSource, TPropertyValue>> fromProperty,
+        Expression<Func<TSource, TPropertyValue>> toProperty,
         PropagationStrategy propagationStrategy = PropagationStrategy.DoNotPropagate)
     {
-        PropertyInfo propertyInfo = _GetPropertyInfo(expression);
+        PropertyInfo propertyInfo = _GetPropertyInfo(toProperty);
         foreach (var item in items)
         {
-            var observer = item.WhenAnyValue(expression);
+            var observer = item.WhenAnyValue(fromProperty);
             _reactivePropertyPropagators.Add(
                 new ReactivePropertyPropagator<TSource, TPropertyValue>(item, propertyInfo, observer));
         }
