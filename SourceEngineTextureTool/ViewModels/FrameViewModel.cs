@@ -9,22 +9,46 @@ public class FrameViewModel : ViewModelBase
 {
     [Reactive] public Frame Frame { get; set; }
 
-    [Reactive] public int Index { get; set; }
+    public ushort Index
+    {
+        get => Frame.Index;
+        set
+        {
+            this.RaisePropertyChanging();
+            Frame.Index = value;
+            this.RaisePropertyChanged();
+        }
+    }
 
-    [Reactive] public string? Source { get; set; }
+    public byte MipmapOrder
+    {
+        get => Frame.MipmapOrder;
+        set
+        {
+            this.RaisePropertyChanging();
+            Frame.MipmapOrder = value;
+            this.RaisePropertyChanged();
+        }
+    }
+
+    [Reactive] public DropImageViewModel DropImageViewModel { get; set; }
 
     public FrameViewModel(Frame frame)
     {
         Frame = frame;
+        DropImageViewModel = new DropImageViewModel(frame.DropImage);
 
         this.WhenAnyValue(fvm => fvm.Frame)
             .Subscribe(newFrame =>
             {
-                Index = newFrame.Index;
-                Source = newFrame.Source;
+                this.RaisePropertyChanged(nameof(Index));
+                this.RaisePropertyChanged(nameof(MipmapOrder));
             });
 
-        this.WhenAnyValue(fvm => fvm.Source)
-            .Subscribe(newSource => { Frame.Source = newSource; });
+        this.WhenAnyValue(fvm => fvm.Index)
+            .Subscribe(newIndex => { DropImageViewModel.FrameIndex = Convert.ToUInt16(newIndex); });
+
+        this.WhenAnyValue(fvm => fvm.MipmapOrder)
+            .Subscribe(newMipmapOrder => { DropImageViewModel.MipmapOrder = Convert.ToByte(newMipmapOrder); });
     }
 }
