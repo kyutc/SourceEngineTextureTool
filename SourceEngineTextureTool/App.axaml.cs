@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
+using SourceEngineTextureTool.Services.Image;
 using SourceEngineTextureTool.Services.IO;
 using SourceEngineTextureTool.ViewModels;
 using SourceEngineTextureTool.Views;
@@ -28,6 +29,7 @@ public class App : Application
             var services = new ServiceCollection();
 
             services.AddSingleton<IFileDialogService>(x => new FileDialogService(desktop.MainWindow));
+            services.AddSingleton<ImageImporter>(x => new ImageImporter());
 
             Services = services.BuildServiceProvider();
         }

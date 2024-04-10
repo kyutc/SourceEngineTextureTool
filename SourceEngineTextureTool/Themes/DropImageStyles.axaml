@@ -20,7 +20,7 @@
         <ControlTheme.Resources>
             <SvgImage x:Key="ImportGlyph" Source="/Assets/import-svgrepo-com.svg" />
             <SvgImage x:Key="KebabGlyph" Source="/Assets/kebab-svgrepo-com.svg" />
-            <Image x:Key="ImportDecal"></Image>
+            <Image x:Key="ImportDecal" />
         </ControlTheme.Resources>
         
         <!-- Image loaded -->
@@ -31,9 +31,8 @@
                     <Panel>
                         <asyncImageLoader:AdvancedImage x:Name="PART_Image"
                                                         Source="{TemplateBinding Source}"
-                                                        Height="{TemplateBinding Height}"
-                                                        Width="{TemplateBinding Width}">
-                        </asyncImageLoader:AdvancedImage>
+                                                        Height="{Binding ImageHeight, RelativeSource={RelativeSource TemplatedParent}}"
+                                                        Width="{Binding ImageWidth, RelativeSource={RelativeSource TemplatedParent}}" />
 
                         <Button x:Name="PART_Button"
                                 HorizontalAlignment="Right" VerticalAlignment="Top">
@@ -55,13 +54,14 @@
                     <Panel>
                         <asyncImageLoader:AdvancedImage x:Name="PART_Image"
                                                         IsVisible="False"
-                                                        Source="{TemplateBinding Source}">
-                        </asyncImageLoader:AdvancedImage>
+                                                        Source="{TemplateBinding Source}" />
 
                         <Button x:Name="PART_Button"
                                 Background="Transparent"
                                 HorizontalAlignment="Center" VerticalAlignment="Center"
-                                HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                                HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
+                                MinHeight="100"
+                                MinWidth="100">
                             <Image Source="{StaticResource ImportGlyph}" Width="30" Height="30" />
                         </Button>
                     </Panel>

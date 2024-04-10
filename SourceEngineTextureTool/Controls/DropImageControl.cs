@@ -12,6 +12,7 @@ using Avalonia.Interactivity;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using SourceEngineTextureTool.Models;
+using SourceEngineTextureTool.Services.Image;
 using SourceEngineTextureTool.Services.IO;
 
 namespace SourceEngineTextureTool.Controls;
@@ -19,20 +20,21 @@ namespace SourceEngineTextureTool.Controls;
 /// <summary>
 /// 
 /// </summary>
-public class SourceChangedEventArgs : RoutedEventArgs
+public class ImportedImageChangedEventArgs : RoutedEventArgs
 {
-    public SourceChangedEventArgs(RoutedEvent routedEvent, string? oldSource, string? newSource) : base(routedEvent)
+    public ImportedImageChangedEventArgs(RoutedEvent routedEvent, string? oldImportedImage, string? newImportedImage) :
+        base(routedEvent)
     {
-        OldSource = oldSource;
-        NewSource = newSource;
+        OldImportedImage = oldImportedImage;
+        NewImportedImage = newImportedImage;
     }
 
-    public string? OldSource { get; }
-    public string? NewSource { get; }
+    public string? OldImportedImage { get; }
+    public string? NewImportedImage { get; }
 }
 
 /// <summary>
-/// Template for a control that 
+/// Template for a control that facilitates importing and displaying images for use within the application.
 /// </summary>
 [TemplatePart(TP_Button, typeof(Button))]
 [TemplatePart(TP_Image, typeof(AdvancedImage))]
@@ -46,10 +48,40 @@ public partial class DropImageControl : TemplatedControl
 
     public bool HasImage => Classes.Contains(PC_HasImage);
 
-    #region Source Shared Styled Property
+    #region Image Control Styled Properties
 
     /// <summary>
-    /// Defines the <see cref="AdvancedImage.SourceProperty"/>
+    /// Exposes the <see cref="AdvancedImage.HeightProperty"/>
+    /// </summary>
+    public static readonly StyledProperty<double> ImageHeightProperty =
+        AvaloniaProperty.Register<DropImageControl, double>(nameof(ImageHeight));
+
+    /// <summary>
+    /// Synonymous with the template part<see cref="TP_Image"/>'s Height property
+    /// </summary>
+    public double ImageHeight
+    {
+        get => GetValue(ImageHeightProperty);
+        set => SetValue(ImageHeightProperty, value);
+    }
+
+    /// <summary>
+    /// Exposes the <see cref="AdvancedImage.WidthProperty"/>
+    /// </summary>
+    public static readonly StyledProperty<double> ImageWidthProperty =
+        AvaloniaProperty.Register<DropImageControl, double>(nameof(ImageWidth));
+
+    /// <summary>
+    /// Synonymous with the template part<see cref="TP_Image"/>'s width property
+    /// </summary>
+    public double ImageWidth
+    {
+        get => GetValue(ImageWidthProperty);
+        set => SetValue(ImageWidthProperty, value);
+    }
+
+    /// <summary>
+    /// Exposes the <see cref="AdvancedImage.SourceProperty"/>
     /// </summary>
     public static readonly StyledProperty<string?> SourceProperty =
         AdvancedImage.SourceProperty.AddOwner<DropImageControl>();
@@ -63,7 +95,7 @@ public partial class DropImageControl : TemplatedControl
         set => SetValue(SourceProperty, value);
     }
 
-    #endregion Source Shared Styled Property
+    #endregion Image Control Styled Properties
 
     #region Command Shared Styled Property
 
@@ -84,19 +116,84 @@ public partial class DropImageControl : TemplatedControl
 
     #endregion Command Shared Styled Property
 
+    #region Control Properties
+
+    /// <summary>
+    /// Defines the <see cref="ImageResolution"/> property.
+    /// </summary>
+    public static readonly StyledProperty<Resolution?> ImageResolutionProperty =
+        AvaloniaProperty.Register<DropImageControl, Resolution?>(nameof(ImageResolution));
+
+    /// <summary>
+    /// Gets/sets the <see cref="ImageResolutionProperty"/> for this instance.
+    /// </summary>
+    public Resolution? ImageResolution
+    {
+        get => GetValue(ImageResolutionProperty);
+        set => SetValue(ImageResolutionProperty, value);
+    }
+
+    /// <summary>
+    /// Defines the <see cref="FrameIndex"/> property.
+    /// </summary>
+    public static readonly StyledProperty<int?> MipmapOrderProperty =
+        AvaloniaProperty.Register<DropImageControl, int?>(nameof(MipmapOrder));
+
+    /// <summary>
+    /// Gets/sets the <see cref="FrameIndexProperty"/> for this instance.
+    /// </summary>
+    public int? MipmapOrder
+    {
+        get => GetValue(MipmapOrderProperty);
+        set => SetValue(MipmapOrderProperty, value);
+    }
+
+    /// <summary>
+    /// Defines the <see cref="FrameIndex"/> property.
+    /// </summary>
+    public static readonly StyledProperty<int?> FrameIndexProperty =
+        AvaloniaProperty.Register<DropImageControl, int?>(nameof(FrameIndex));
+
+    /// <summary>
+    /// Gets/sets the <see cref="FrameIndexProperty"/> for this instance.
+    /// </summary>
+    public int? FrameIndex
+    {
+        get => GetValue(FrameIndexProperty);
+        set => SetValue(FrameIndexProperty, value);
+    }
+
+    /// <summary>
+    /// Defines the <see cref="ImportedImage"/> property.
+    /// </summary>
+    public static readonly StyledProperty<string?> ImportedImageProperty =
+        AvaloniaProperty.Register<DropImageControl, string?>(nameof(ImportedImage),
+            defaultBindingMode: BindingMode.TwoWay);
+
+    /// <summary>
+    /// Gets/sets the <see cref="ImportedImageProperty"/> for this instance.
+    /// </summary>
+    public string? ImportedImage
+    {
+        get => GetValue(ImportedImageProperty);
+        set => SetValue(ImportedImageProperty, value);
+    }
+
+    #endregion Control Properties
+
     #region Events
 
     /// <summary>
     /// Defines the <see cref="SourceChanged"/> event.
     /// </summary>
-    public static readonly RoutedEvent<SourceChangedEventArgs> SourceChangedEvent =
-        RoutedEvent.Register<FileDialogService, SourceChangedEventArgs>(nameof(SourceChanged),
+    public static readonly RoutedEvent<ImportedImageChangedEventArgs> SourceChangedEvent =
+        RoutedEvent.Register<FileDialogService, ImportedImageChangedEventArgs>(nameof(SourceChanged),
             RoutingStrategies.Bubble);
 
     /// <summary>
     /// Raised when a file is imported
     /// </summary>
-    public event EventHandler<SourceChangedEventArgs>? SourceChanged
+    public event EventHandler<ImportedImageChangedEventArgs>? SourceChanged
     {
         add => AddHandler(SourceChangedEvent, value);
         remove => RemoveHandler(SourceChangedEvent, value);
@@ -165,6 +262,8 @@ public partial class DropImageControl : TemplatedControl
     {
         var fileDialogService = App.FetchService<IFileDialogService>() ??
                                 throw new Exception("FileDialogService not found.");
+        var importedImageRepository = App.FetchService<ImageImporter>() ??
+                                      throw new Exception("ImportedImageRepository not found.");
 
         return Dispatcher.UIThread.InvokeAsync(async () =>
         {
@@ -173,26 +272,15 @@ public partial class DropImageControl : TemplatedControl
 
             var path = Path.GetRelativePath(Directory.GetCurrentDirectory(),
                 file.Path.AbsolutePath); //new Uri(Directory.GetCurrentDirectory()).MakeRelativeUri(file.Path)
-            UpdateImage(path);
-        });
-    }
+            var importedImage = importedImageRepository.GetImportedImageFromFile(path);
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="uri"></param>
-    private void UpdateImage(string? uri)
-    {
-        // Todo: Service that validates a string as relative URI or (eventually) URL
-        // Todo: Clean up existing preview (if null string only do this part)
-        // Todo: Initialize DropImage w/ new uri
-        // Todo: Set AdvancedImage source
-        string? oldSource = Source;
-        Source = uri;
-        if (Source != oldSource)
-        {
-            RaiseEvent(new SourceChangedEventArgs(SourceChangedEvent, oldSource, Source));
-        }
+            string? oldImportedImage = ImportedImage;
+            ImportedImage = importedImage;
+            if (oldImportedImage != ImportedImage)
+            {
+                RaiseEvent(new ImportedImageChangedEventArgs(SourceChangedEvent, oldImportedImage, ImportedImage));
+            }
+        });
     }
 
     private void SetupDragAndDrop()
