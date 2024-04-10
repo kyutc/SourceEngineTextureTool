@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using ImageMagick;
+using SourceEngineTextureTool.Models;
 using SourceEngineTextureTool.Models.Settings;
 
 namespace SourceEngineTextureTool.Services.Image;
@@ -43,6 +46,21 @@ public static class ConversionHelper
     public static string CreatePreview(string file, int width, int height, Sett settSettings, Vtf vtfSettings)
     {
         throw new NotImplementedException();
+    }
+
+    public static void CreatePreview(DropImage di, int width, int height, Models.Settings.Sett settings)
+    {
+        if (di.PreviewImage is not null && File.Exists(di.PreviewImage))
+            File.Delete(di.PreviewImage);
+        
+        if (di.ConvertedImage is not null && File.Exists(di.ConvertedImage))
+            File.Delete(di.ConvertedImage);
+
+        var ddsFile = Convert([di.ImportedImage], width, height, settings);
+        var previewFile = NormaliseToPng32(ddsFile[0]);
+
+        di.ConvertedImage = ddsFile[0];
+        di.PreviewImage = previewFile[0];
     }
     
     public static string[] Convert(string[] files, int width, int height, Models.Settings.Sett settings)

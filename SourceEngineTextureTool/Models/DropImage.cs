@@ -34,6 +34,14 @@ public class DropImage
     }
     private string? _importedImage;
 
+    public string? ConvertedImage
+    {
+        get => _convertedImage;
+        set => _convertedImage = value;
+    }
+
+    private string? _convertedImage;
+
     public string? PreviewImage
     {
         get => _previewImage;
