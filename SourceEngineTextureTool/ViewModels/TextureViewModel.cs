@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
+using DynamicData;
 using EnumsNET;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -151,34 +152,12 @@ public class TextureViewModel : ViewModelBase
     /// </summary>
     public void Refresh()
     {
-        if (!GenerateMipmaps)
-        {
-            MipmapViewModels.Clear();
-            MipmapViewModels.Insert(0, new MipmapViewModel(Texture.Mipmaps.First()));
-        }
-        else
-        {
-            int index = 0;
-            // Update viewmodels w/ mipmap changes
-            foreach (var mipmap in Texture.Mipmaps)
-            {
-                if (index < MipmapViewModels.Count)
-                {
-                    var mipmapViewModel = MipmapViewModels[index++];
-                    mipmapViewModel.Mipmap = mipmap;
-                }
-                else
-                {
-                    MipmapViewModels.Insert(index++, new(mipmap));
-                }
-            }
-
-            // Cull excess viewmodels
-            while (MipmapViewModels.Count > Texture.Mipmaps.Count())
-            {
-                MipmapViewModels.RemoveAt(index);
-            }
-        }
+        // If not generating mipmaps, only exhibit the first mipmap.
+        var mipmaps = GenerateMipmaps
+            ? Texture.Mipmaps.Select(mipmap => new MipmapViewModel(mipmap))
+            : [new MipmapViewModel(Texture.Mipmaps.First())];
+        MipmapViewModels.Clear();
+        MipmapViewModels.AddRange(mipmaps);
 
         MipmapCount = MipmapViewModels.Count;
 
@@ -189,12 +168,13 @@ public class TextureViewModel : ViewModelBase
     {
         _reactivePropertyPropagatorManager.Clear();
 
-        MipmapViewModels.SelectMany(mvm => mvm.FrameViewModels.Select((fvm, index) => (index, fvm)))
-            .GroupBy(i => i.index, i => i.fvm)
+        MipmapViewModels.SelectMany(mvm =>
+                mvm.FrameViewModels.Select((fvm, index) => (index, divm: fvm.DropImageViewModel)))
+            .GroupBy(i => i.index, i => i.divm)
             .Select(g => g.ToList())
             .ToList()
-            .ForEach(fvms => _reactivePropertyPropagatorManager.InitializePropertyPropagationSequence(fvms,
-                fvm => fvm.Source)
+            .ForEach(divms => _reactivePropertyPropagatorManager.InitializePropertyPropagationSequence(divms,
+                divm => divm.ImportedImage, divm => divm.DefaultImage)
             );
     }
 }
