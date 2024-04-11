@@ -17,12 +17,12 @@ public class ProjectSettingsViewModel : ViewModelBase
     /// <summary>
     /// Gets/sets the model describing how SETT processes the inputs for a VTF
     /// </summary>
-    [Reactive] public Sett SettSettings { get; set; }
+    public Sett SettSettings { get; set; }
 
     /// <summary>
     /// Gets/sets the model describing the produced VTF file
     /// </summary>
-    [Reactive] public Vtf VtfSettings { get; set; }
+    public Vtf VtfSettings { get; set; }
 
     #region SETT Settings
 
@@ -110,26 +110,38 @@ public class ProjectSettingsViewModel : ViewModelBase
     public ProjectSettingsViewModel(Sett? settSettings = null, Vtf? vtfSettings = null)
     {
         SettSettings = settSettings ?? new();
+        {
+            // SelectedAutocropMode = SettSettings.AutocropModeOption;
+            SelectedPreviewMode = SettSettings.PreviewModeOption;
+            SelectedScaleAlgorithm = SettSettings.ScaleAlgorithmOption;
+            SelectedScaleMode = SettSettings.ScaleModeOption;
+        }
+        
         VtfSettings = vtfSettings ?? new();
 
-        this.WhenAnyValue(psvm => psvm.SettSettings)
-            .Subscribe(newSettSettings =>
-            {
-                SelectedScaleAlgorithm = newSettSettings.ScaleAlgorithmOption;
-                SelectedScaleMode = newSettSettings.ScaleModeOption;
+        this.WhenAnyValue(psvm => psvm.SelectedAutocropMode)
+            .Subscribe(newAutocropMode => {
+                SettSettings.AutocropModeOption = newAutocropMode;
+                this.RaisePropertyChanged(nameof(SettSettings));
             });
 
-        this.WhenAnyValue(psvm => psvm.SelectedAutocropMode)
-            .Subscribe(newAutocropMode => SettSettings.AutocropModeOption = newAutocropMode);
-
         this.WhenAnyValue(psvm => psvm.SelectedPreviewMode)
-            .Subscribe(newPreviewMode => SettSettings.PreviewModeOption = newPreviewMode);
+            .Subscribe(newPreviewMode => {
+                SettSettings.PreviewModeOption = newPreviewMode;
+                this.RaisePropertyChanged(nameof(SettSettings));
+            });
 
         this.WhenAnyValue(psvm => psvm.SelectedScaleAlgorithm)
-            .Subscribe(newScaleAlgorithm => SettSettings.ScaleAlgorithmOption = newScaleAlgorithm);
+            .Subscribe(newScaleAlgorithm => {
+                SettSettings.ScaleAlgorithmOption = newScaleAlgorithm;
+                this.RaisePropertyChanged(nameof(SettSettings));
+            });
 
         this.WhenAnyValue(psvm => psvm.SelectedScaleMode)
-            .Subscribe(newScaleMode => SettSettings.ScaleModeOption = newScaleMode);
+            .Subscribe(newScaleMode => {
+                SettSettings.ScaleModeOption = newScaleMode;
+                this.RaisePropertyChanged(nameof(SettSettings));
+            });
 
         this.WhenAnyValue(psvm => psvm.VtfSettings)
             .Subscribe(newVtfSettings =>

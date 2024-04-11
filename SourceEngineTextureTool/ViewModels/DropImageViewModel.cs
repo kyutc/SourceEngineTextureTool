@@ -3,6 +3,8 @@ using System.Reactive.Linq;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using SourceEngineTextureTool.Models;
+using SourceEngineTextureTool.Models.Settings;
+using SourceEngineTextureTool.Services.Image;
 
 namespace SourceEngineTextureTool.ViewModels;
 
@@ -12,6 +14,8 @@ public class DropImageViewModel : ViewModelBase
     /// Gets/sets this viewmodel's DropImage.
     /// </summary>
     public DropImage DropImage { get; }
+    
+    public Sett Settings { get; }
     
     public byte? MipmapOrder
     {
@@ -52,11 +56,6 @@ public class DropImageViewModel : ViewModelBase
             this.RaisePropertyChanging();
             DropImage.ImportedImage = UseDefaultImage ? DefaultImage : value;
             this.RaisePropertyChanged();
-
-            if (!UsePreviewImage)
-            {
-                CurrentlyDisplayedImage = ImportedImage;
-            }
         }
     }
 
@@ -66,34 +65,12 @@ public class DropImageViewModel : ViewModelBase
     public string? PreviewImage
     {
         get => DropImage.PreviewImage;
-        private set
-        {
-            this.RaisePropertyChanging();
-            DropImage.PreviewImage = value;
-            this.RaisePropertyChanged();
-
-            if (UsePreviewImage)
-            {
-                CurrentlyDisplayedImage = PreviewImage;
-            }
-        }
     }
 
     /// <summary>
     /// Gets/sets the default image to use for <see cref="ImportedImage"/>.
     /// </summary>
-    [Reactive] public string? DefaultImage
-    {
-        get => _defaultImage;
-        set
-        {
-            this.RaiseAndSetIfChanged(ref _defaultImage, value);
-            if (UseDefaultImage)
-            {
-                ImportedImage = DefaultImage;
-            }
-        }
-    }
+    [Reactive] public string? DefaultImage { get; set; }
 
     private string? _defaultImage;
 
@@ -115,8 +92,17 @@ public class DropImageViewModel : ViewModelBase
     public DropImageViewModel(DropImage dropImage)
     {
         DropImage = dropImage;
-        
         UseDefaultImage = true;
+
+        var currentProjectSettingsViewModel = App.FetchService<ProjectSettingsViewModel>();
+        currentProjectSettingsViewModel.WhenAnyValue(psvm => psvm.EnableCompiledTexturePreview)
+            .Subscribe(newUsePreviewImage => UsePreviewImage = newUsePreviewImage);
+
+        Settings = currentProjectSettingsViewModel.SettSettings;
+
+        currentProjectSettingsViewModel.WhenAnyValue(psvm => psvm.SettSettings)
+            .Skip(1)
+            .Subscribe(_ => _UpdatePreviewImage());
 
         this.WhenAnyValue(divm => divm.DefaultImage)
             .Skip(1)
@@ -130,7 +116,24 @@ public class DropImageViewModel : ViewModelBase
 
         this.WhenAnyValue(divm => divm.ImportedImage)
             .Skip(1)
-            .Subscribe(_ => _UpdatePreviewImage());
+            .Subscribe(newImportedImage =>
+            {
+                _UpdatePreviewImage();
+                
+                if (!UsePreviewImage)
+                {
+                    CurrentlyDisplayedImage = ImportedImage;
+                }
+            });
+
+        this.WhenAnyValue(divm => divm.PreviewImage)
+            .Subscribe(_ =>
+            {
+                if (UsePreviewImage)
+                {
+                    CurrentlyDisplayedImage = ImportedImage;
+                }
+            });
 
         this.WhenAnyValue(divm => divm.UsePreviewImage)
             .Skip(1)
@@ -140,17 +143,8 @@ public class DropImageViewModel : ViewModelBase
 
     public void _UpdatePreviewImage()
     {
-        // Todo: ImportedImage was changed, meaning we need a new PreviewImage
-        string newPreviewImage = "";
-
-        // Todo: Update preview image
-        //  PreviewImage = ConversionHelper.CreatePreview(
-        //             // ImportedImage,
-        //             // ImageResolution.Width,
-        //             // ImageResolution.Height,
-        //             // how do I get project settings from here // Todo: Service that registers global settings. 
-        //             // );
-
-        PreviewImage = newPreviewImage;
+        this.RaisePropertyChanging(nameof(PreviewImage));
+        ConversionHelper.Render(DropImage, Settings);
+        this.RaisePropertyChanged(nameof(PreviewImage));
     }
 }
