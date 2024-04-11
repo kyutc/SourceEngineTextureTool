@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using ImageMagick;
 using SourceEngineTextureTool.Models;
 using SourceEngineTextureTool.Models.Settings;
 
@@ -34,21 +33,7 @@ public static class ConversionHelper
         return outfiles;
     }
 
-    /// <summary>
-    /// Create a preview image from a normalized image.
-    /// </summary>
-    /// <param name="file">The PNG32 file to process</param>
-    /// <param name="width">The target width of the output</param>
-    /// <param name="height">The target height of the output</param>
-    /// <param name="settSettings">The application settings to use</param>
-    /// <param name="vtfSettings">The vtf settings to use.</param>
-    /// <returns>A path to the newly created preview image.</returns>
-    public static string CreatePreview(string file, int width, int height, Sett settSettings, Vtf vtfSettings)
-    {
-        throw new NotImplementedException();
-    }
-
-    public static void CreatePreview(DropImage di, int width, int height, Models.Settings.Sett settings)
+    public static void Render(DropImage di, Models.Settings.Sett settings)
     {
         if (di.PreviewImage is not null && File.Exists(di.PreviewImage))
             File.Delete(di.PreviewImage);
@@ -56,6 +41,11 @@ public static class ConversionHelper
         if (di.ConvertedImage is not null && File.Exists(di.ConvertedImage))
             File.Delete(di.ConvertedImage);
 
+        if (di.ImportedImage is null || di.TargetResolution is null) return;
+
+        var width = di.TargetResolution.Width;
+        var height = di.TargetResolution.Height;
+        
         var ddsFile = Convert([di.ImportedImage], width, height, settings);
         var previewFile = NormaliseToPng32(ddsFile[0]);
 
