@@ -223,16 +223,12 @@ public partial class DropImageControl : TemplatedControl
 
         Button = e.NameScope.Find<Button>(TP_Button);
         Button?.Bind(Button.CommandProperty, new Binding(nameof(Command)) { Source = this });
+        Command = OpenImageFileDialogCommand;
 
         if (Classes.Contains(PC_HasImage))
         {
             Image = e.NameScope.Find<AdvancedImage>(TP_Image);
             Image?.Bind(AdvancedImage.SourceProperty, new Binding(nameof(Source)) { Source = this });
-            Command = null; // Todo: Flyout w/ options
-        }
-        else
-        {
-            Command = OpenImageFileDialogCommand;
         }
     }
 

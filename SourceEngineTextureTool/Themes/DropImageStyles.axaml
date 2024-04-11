@@ -36,7 +36,7 @@
 
                         <Button x:Name="PART_Button"
                                 HorizontalAlignment="Right" VerticalAlignment="Top">
-                            <Image Source="{StaticResource KebabGlyph}" Width="30" Height="30" />
+                            <Image Source="{StaticResource ImportGlyph}" Width="30" Height="30" />
                         </Button>
                     </Panel>
                 </ControlTemplate>
