@@ -21,17 +21,32 @@ public class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new MainWindow
+            var mainWindowViewModel = new MainWindowViewModel();
+            desktop.MainWindow = new MainWindow()
             {
-                DataContext = new MainWindowViewModel(),
+                DataContext = mainWindowViewModel,
             };
+            
+            ////////////
+            // Services
+            ////////////
+            {
+                var services = new ServiceCollection();
 
-            var services = new ServiceCollection();
+                services.AddSingleton<IFileDialogService>(x => new FileDialogService(desktop.MainWindow));
+                services.AddSingleton<ImageImporter>(x => new ImageImporter());
+                
+                // The Current MainWindowViewModel
+                services.AddTransient<MainWindowViewModel>(x => 
+                    (MainWindowViewModel)desktop.MainWindow.DataContext);
+                // The Current project settings
+                services.AddTransient<ProjectSettingsViewModel>(x =>
+                    FetchService<MainWindowViewModel>().ProjectSettingsViewModel);
 
-            services.AddSingleton<IFileDialogService>(x => new FileDialogService(desktop.MainWindow));
-            services.AddSingleton<ImageImporter>(x => new ImageImporter());
+                Services = services.BuildServiceProvider();
+            }
 
-            Services = services.BuildServiceProvider();
+            mainWindowViewModel.InitializeWorkspace();
         }
 
         base.OnFrameworkInitializationCompleted();
