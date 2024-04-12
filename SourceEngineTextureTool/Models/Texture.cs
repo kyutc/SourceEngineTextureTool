@@ -25,7 +25,7 @@ public class Texture
     /// <summary>
     /// Gets the collection of mipmaps for this <see cref="Texture"/>.
     /// </summary>
-    public IEnumerable<Mipmap> Mipmaps
+    public IReadOnlyList<Mipmap> Mipmaps
     {
         get => _mipmaps;
     }
@@ -112,7 +112,8 @@ public class Texture
                 _mipmaps.Clear();
                 for (int i = 0; i < index; i++)
                 {
-                    _mipmaps.Add(new Mipmap(requiredResolutions[i], FrameCount));
+                    byte mipmapOrder = Convert.ToByte(i);
+                    _mipmaps.Add(new Mipmap(requiredResolutions[i], mipmapOrder, FrameCount));
                 }
 
                 _mipmaps.AddRange(oldMipmaps);
@@ -125,7 +126,8 @@ public class Texture
         _mipmaps.Clear();
         foreach (var requiredResolution in requiredResolutions)
         {
-            _mipmaps.Add(new Mipmap(requiredResolution, FrameCount));
+            var mipmapOrder = Convert.ToByte(_mipmaps.Count);
+            _mipmaps.Add(new Mipmap(requiredResolution, mipmapOrder, FrameCount));
         }
     }
 

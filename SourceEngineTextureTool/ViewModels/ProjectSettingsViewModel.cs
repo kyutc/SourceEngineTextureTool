@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using DynamicData;
 using DynamicData.Binding;
@@ -17,12 +18,14 @@ public class ProjectSettingsViewModel : ViewModelBase
     /// <summary>
     /// Gets/sets the model describing how SETT processes the inputs for a VTF
     /// </summary>
-    [Reactive] public Sett SettSettings { get; set; }
+    public Sett SettSettings { get; set; }
 
     /// <summary>
     /// Gets/sets the model describing the produced VTF file
     /// </summary>
-    [Reactive] public Vtf VtfSettings { get; set; }
+    public Vtf VtfSettings { get; set; }
+
+    public IObservable<Unit> RenderSettingChanged { get; set; }
 
     #region SETT Settings
 
@@ -104,33 +107,57 @@ public class ProjectSettingsViewModel : ViewModelBase
     /// Gets/sets whether the imported image or the formatted image should be displayed in the workspace.
     /// </summary>
     [Reactive] public bool EnableCompiledTexturePreview { get; set; }
+    
+    // Todo: Compact/Native display setting
 
     #endregion GUI Settings
     
     public ProjectSettingsViewModel(Sett? settSettings = null, Vtf? vtfSettings = null)
     {
         SettSettings = settSettings ?? new();
+        {
+            // SelectedAutocropMode = SettSettings.AutocropModeOption;
+            SelectedPreviewMode = SettSettings.PreviewModeOption;
+            SelectedScaleAlgorithm = SettSettings.ScaleAlgorithmOption;
+            SelectedScaleMode = SettSettings.ScaleModeOption;
+        }
+        
+        var autocropModeObservable = this.WhenAnyValue(psvm => psvm.SelectedAutocropMode);
+        autocropModeObservable.Subscribe(newAutocropMode =>
+        {
+            SettSettings.AutocropModeOption = newAutocropMode;
+            this.RaisePropertyChanged(nameof(SettSettings));
+        });
+        
+        var previewModeObservable = this.WhenAnyValue(psvm => psvm.SelectedPreviewMode);
+        previewModeObservable.Subscribe(newPreviewMode =>
+        {
+            SettSettings.PreviewModeOption = newPreviewMode;
+            this.RaisePropertyChanged(nameof(SettSettings));
+        });
+        
+        var scaleAlgorithmObservable = this.WhenAnyValue(psvm => psvm.SelectedScaleAlgorithm);
+        scaleAlgorithmObservable.Subscribe(newScaleAlgorithm =>
+        {
+            SettSettings.ScaleAlgorithmOption = newScaleAlgorithm;
+            this.RaisePropertyChanged(nameof(SettSettings));
+        });
+        
+        var scaleModeObservable = this.WhenAnyValue(psvm => psvm.SelectedScaleMode);
+        scaleModeObservable.Subscribe(newScaleMode =>
+        {
+            SettSettings.ScaleModeOption = newScaleMode;
+            this.RaisePropertyChanged(nameof(SettSettings));
+        });
+        
+        RenderSettingChanged = Observable.Merge(
+            autocropModeObservable.Select(_ => Unit.Default),
+            previewModeObservable.Select(_ => Unit.Default),
+            scaleAlgorithmObservable.Select(_ => Unit.Default),
+            scaleModeObservable.Select(_ => Unit.Default));
+        
         VtfSettings = vtfSettings ?? new();
-
-        this.WhenAnyValue(psvm => psvm.SettSettings)
-            .Subscribe(newSettSettings =>
-            {
-                SelectedScaleAlgorithm = newSettSettings.ScaleAlgorithmOption;
-                SelectedScaleMode = newSettSettings.ScaleModeOption;
-            });
-
-        this.WhenAnyValue(psvm => psvm.SelectedAutocropMode)
-            .Subscribe(newAutocropMode => SettSettings.AutocropModeOption = newAutocropMode);
-
-        this.WhenAnyValue(psvm => psvm.SelectedPreviewMode)
-            .Subscribe(newPreviewMode => SettSettings.PreviewModeOption = newPreviewMode);
-
-        this.WhenAnyValue(psvm => psvm.SelectedScaleAlgorithm)
-            .Subscribe(newScaleAlgorithm => SettSettings.ScaleAlgorithmOption = newScaleAlgorithm);
-
-        this.WhenAnyValue(psvm => psvm.SelectedScaleMode)
-            .Subscribe(newScaleMode => SettSettings.ScaleModeOption = newScaleMode);
-
+        
         this.WhenAnyValue(psvm => psvm.VtfSettings)
             .Subscribe(newVtfSettings =>
             {
@@ -168,14 +195,5 @@ public class ProjectSettingsViewModel : ViewModelBase
 
         this.WhenAnyValue(psvm => psvm.SelectedVtfImageFormat)
             .Subscribe(newVtfImageFormat => VtfSettings.FormatOption = newVtfImageFormat);
-
-        this.WhenAnyValue(tvm => tvm.EnableCompiledTexturePreview)
-            .Skip(1)
-            .Subscribe(enableCompiledTexturePreview =>
-            {
-                // Todo: Implement functionality for the Preview button
-                // Invoke singleton factory service to change the Source property of each DropImageViewModel to their
-                // DropImage's ImportedImage or PreviewImage property depending on this value
-            });
     }
 }

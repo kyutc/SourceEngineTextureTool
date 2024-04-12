@@ -8,6 +8,9 @@
     <ItemGroup>
         <AvaloniaResource Include="Assets\**"/>
         <None Remove=".gitignore"/>
+        <None Update="black.dds">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.2.1" />

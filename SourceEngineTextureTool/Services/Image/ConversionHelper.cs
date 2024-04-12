@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using SourceEngineTextureTool.Models;
 using SourceEngineTextureTool.Models.Settings;
 
 namespace SourceEngineTextureTool.Services.Image;
@@ -15,7 +17,7 @@ public static class ConversionHelper
     {
         return NormaliseToPng32([file]);
     }
-    
+
     /// <summary>
     /// Convert all of the frames of the provided files into individual PNG32 images.
     /// </summary>
@@ -31,6 +33,26 @@ public static class ConversionHelper
         return outfiles;
     }
 
+    public static void Render(DropImage di, Models.Settings.Sett settings)
+    {
+        if (di.PreviewImage is not null && File.Exists(di.PreviewImage))
+            File.Delete(di.PreviewImage);
+
+        if (di.ConvertedImage is not null && File.Exists(di.ConvertedImage))
+            File.Delete(di.ConvertedImage);
+
+        if (di.ImportedImage is null || di.TargetResolution is null) return;
+
+        var width = di.TargetResolution.Width;
+        var height = di.TargetResolution.Height;
+
+        var ddsFile = Convert([di.ImportedImage], width, height, settings);
+        var previewFile = NormaliseToPng32(ddsFile[0]);
+
+        di.ConvertedImage = ddsFile[0];
+        di.PreviewImage = previewFile[0];
+    }
+
     public static string[] Convert(string file, int width, int height, Models.Settings.Sett settings)
     {
         return Convert([file], width, height, settings);
@@ -40,7 +62,7 @@ public static class ConversionHelper
     {
         string[] outfiles = null;
         var tasks = new List<Operation>();
-        
+
         tasks.Add(new NormaliseToPng32());
 
         switch (settings.AutocropModeOption)
@@ -59,7 +81,7 @@ public static class ConversionHelper
             default:
                 throw new NotImplementedException();
         }
-        
+
         tasks.Add(new ScaleOperation
         {
             Width = width,
@@ -80,10 +102,10 @@ public static class ConversionHelper
             },
             Background = settings.BackgroundColour,
         });
-        
+
         if (settings.CompositeEnabled)
             tasks.Add(new CompositeOperation { BackgroundColour = settings.BackgroundColour });
-        
+
         tasks.Add(new CrunchOperation
         {
             Format = settings.VtfImageFormatOption switch

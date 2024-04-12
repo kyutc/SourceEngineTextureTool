@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
+using DynamicData;
 using EnumsNET;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -74,6 +75,8 @@ public class TextureViewModel : ViewModelBase
 
     [Reactive] public ObservableCollection<MipmapViewModel> MipmapViewModels { get; set; }
 
+    [Reactive] public IObservable<bool> TextureIsReady { get; private set; }
+    
     public TextureViewModel(Texture? texture = null)
     {
         Texture = texture ?? new Texture();
@@ -120,6 +123,7 @@ public class TextureViewModel : ViewModelBase
                 }
 
                 _SetupPropagation();
+                _WatchForDropImagesToBeReady();
             });
 
         this.WhenAnyValue(tvm => tvm.GenerateMipmaps)
@@ -151,50 +155,41 @@ public class TextureViewModel : ViewModelBase
     /// </summary>
     public void Refresh()
     {
-        if (!GenerateMipmaps)
-        {
-            MipmapViewModels.Clear();
-            MipmapViewModels.Insert(0, new MipmapViewModel(Texture.Mipmaps.First()));
-        }
-        else
-        {
-            int index = 0;
-            // Update viewmodels w/ mipmap changes
-            foreach (var mipmap in Texture.Mipmaps)
-            {
-                if (index < MipmapViewModels.Count)
-                {
-                    var mipmapViewModel = MipmapViewModels[index++];
-                    mipmapViewModel.Mipmap = mipmap;
-                }
-                else
-                {
-                    MipmapViewModels.Insert(index++, new(mipmap));
-                }
-            }
-
-            // Cull excess viewmodels
-            while (MipmapViewModels.Count > Texture.Mipmaps.Count())
-            {
-                MipmapViewModels.RemoveAt(index);
-            }
-        }
+        // If not generating mipmaps, only exhibit the first mipmap.
+        var mipmaps = GenerateMipmaps
+            ? Texture.Mipmaps.Select(mipmap => new MipmapViewModel(mipmap))
+            : [new MipmapViewModel(Texture.Mipmaps.First())];
+        MipmapViewModels.Clear();
+        MipmapViewModels.AddRange(mipmaps);
 
         MipmapCount = MipmapViewModels.Count;
 
         _SetupPropagation();
+        _WatchForDropImagesToBeReady();
     }
 
     private void _SetupPropagation()
     {
         _reactivePropertyPropagatorManager.Clear();
 
-        MipmapViewModels.SelectMany(mvm => mvm.FrameViewModels.Select((fvm, index) => (index, fvm)))
-            .GroupBy(i => i.index, i => i.fvm)
+        MipmapViewModels.SelectMany(mvm =>
+                mvm.FrameViewModels.Select((fvm, index) => (index, divm: fvm.DropImageViewModel)))
+            .GroupBy(i => i.index, i => i.divm)
             .Select(g => g.ToList())
             .ToList()
-            .ForEach(fvms => _reactivePropertyPropagatorManager.InitializePropertyPropagationSequence(fvms,
-                fvm => fvm.Source)
+            .ForEach(divms => _reactivePropertyPropagatorManager.InitializePropertyPropagationSequence(divms,
+                divm => divm.ImportedImage, divm => divm.DefaultImage)
             );
+    }
+
+    /// <summary>
+    /// Every time DropImages are added/removed from the view this instance needs to rebuild the observer that watches
+    /// for all those DropImages to be ready.
+    /// </summary>
+    private void _WatchForDropImagesToBeReady()
+    {
+        IList<IObservable<bool>> readinessObservables = MipmapViewModels.SelectMany(mvm =>
+            mvm.FrameViewModels.Select(fvm => fvm.DropImageViewModel.HasConvertedImage)).ToList();
+        TextureIsReady = readinessObservables.CombineLatest(values => values.All(value => value));
     }
 }

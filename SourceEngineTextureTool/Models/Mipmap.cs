@@ -8,19 +8,28 @@ namespace SourceEngineTextureTool.Models;
 /// </summary>
 public class Mipmap
 {
-    private Resolution _resolution;
+    public byte Order
+    {
+        get => _order;
+        set => _order = value;
+    }
+
+    private byte _order;
 
     public Resolution Resolution
     {
         get => _resolution;
+        set => _resolution = value;
     }
 
-    public IEnumerable<Frame> Frames
+    private Resolution _resolution;
+
+    public IReadOnlyList<Frame> Frames
     {
         get => _frames;
     }
 
-    private readonly List<Frame> _frames;
+    private readonly List<Frame> _frames = new();
 
     public ushort FrameCount
     {
@@ -36,10 +45,10 @@ public class Mipmap
         }
     }
 
-    public Mipmap(Resolution resolution, ushort frameCount = 1)
+    public Mipmap(Resolution resolution, byte mipmapOrder, ushort frameCount)
     {
         _resolution = resolution;
-        _frames = new();
+        Order = mipmapOrder;
         FrameCount = frameCount;
     }
 
@@ -53,7 +62,7 @@ public class Mipmap
 
         while (_frames.Count < newFrameCount)
         {
-            _frames.Add(new((ushort)_frames.Count));
+            _frames.Add(new((ushort)_frames.Count, _order, _resolution));
         }
     }
 }

@@ -1,7 +1,5 @@
 using System;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Reactive.Linq;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using SourceEngineTextureTool.Models;
@@ -12,6 +10,8 @@ public class MipmapViewModel : ViewModelBase
 {
     [Reactive] public Mipmap Mipmap { get; set; }
 
+    [Reactive] public int MipmapOrder { get; set; }
+    
     [Reactive] public Resolution MipmapResolution { get; set; }
 
     [Reactive] public ObservableCollection<FrameViewModel> FrameViewModels { get; set; }

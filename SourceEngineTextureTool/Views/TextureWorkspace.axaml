@@ -20,12 +20,12 @@
                             <LayoutTransformControl.LayoutTransform>
                                 <RotateTransform Angle="270" />
                             </LayoutTransformControl.LayoutTransform>
-                            <TextBlock Text="{Binding MipmapResolution}" />
+                            <TextBlock Text="{Binding MipmapResolution}" 
+                                       Padding="10 0"/>
                         </LayoutTransformControl>
 
                         <!-- Each mipmap is presented by splaying its frames across the row -->
                         <ItemsRepeater ItemsSource="{Binding  FrameViewModels}">
-
                             <ItemsRepeater.Layout>
                                 <StackLayout Orientation="Horizontal" />
                             </ItemsRepeater.Layout>
@@ -33,8 +33,15 @@
                             <ItemsRepeater.ItemTemplate>
 
                                 <DataTemplate>
-                                    <Border Classes="Frame" Height="100" Width="100">
-                                        <c:DropImageControl Source="{Binding Source, Mode=TwoWay}" />
+                                    <Border Padding="10">
+                                        <c:DropImageControl
+                                            DataContext="{Binding DropImageViewModel}"
+                                            MipmapOrder="{Binding MipmapOrder}"
+                                            FrameIndex="{Binding FrameIndex}"
+                                            ImageHeight="{Binding TargetResolution.Height}"
+                                            ImageWidth="{Binding TargetResolution.Width}"
+                                            ImportedImage="{Binding ImportedImage, Mode=TwoWay}"
+                                            Source="{Binding CurrentlyDisplayedImage, Mode=OneWay}" />
                                     </Border>
                                 </DataTemplate>
 
