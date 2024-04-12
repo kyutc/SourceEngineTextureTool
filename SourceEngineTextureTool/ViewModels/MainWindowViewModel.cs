@@ -4,7 +4,7 @@ namespace SourceEngineTextureTool.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase
 {
-    [Reactive] public ProjectSettingsViewModel? ProjectSettingsViewModel { get; set; }
+    [Reactive] public ProjectSettingsViewModel ProjectSettingsViewModel { get; set; }
 
     [Reactive] public TextureViewModel? TextureViewModel { get; set; }
 

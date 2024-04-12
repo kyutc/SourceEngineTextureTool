@@ -14,15 +14,15 @@ public class DropImageViewModel : ViewModelBase
     /// Gets/sets this viewmodel's DropImage.
     /// </summary>
     public DropImage DropImage { get; }
-    
+
     public Sett Settings { get; }
-    
+
     public byte? MipmapOrder
     {
         get => DropImage.MipmapOrder;
         set => DropImage.MipmapOrder = value;
     }
-    
+
     public Resolution? TargetResolution
     {
         get => DropImage.TargetResolution;
@@ -61,6 +61,7 @@ public class DropImageViewModel : ViewModelBase
 
     /// <summary>
     /// Gets/sets the <see cref="DropImage.PreviewImage"/> property.
+    /// Updated when <see cref="ImportedImage"/> is set or <see cref="Settings"/> are changed.
     /// </summary>
     public string? PreviewImage
     {
@@ -68,7 +69,7 @@ public class DropImageViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// Gets/sets the default image to use for <see cref="ImportedImage"/>.
+    /// Gets/sets the default image to use when <see cref="ImportedImage"/> is null. 
     /// </summary>
     [Reactive] public string? DefaultImage { get; set; }
 
@@ -80,12 +81,12 @@ public class DropImageViewModel : ViewModelBase
     [Reactive] public bool UsePreviewImage { get; set; }
 
     /// <summary>
-    /// Gets/sets whether changes to the <see cref="DefaultImage"/> should be automatically applied to <see cref="ImportedImage"/>
+    /// Gets/sets whether changes to the <see cref="DefaultImage"/> should be automatically applied to <see cref="ImportedImage"/>.
     /// </summary>
     [Reactive] public bool UseDefaultImage { get; set; }
 
     /// <summary>
-    /// Gets the image to display.
+    /// Gets/sets the image to display.
     /// </summary>
     [Reactive] public string? CurrentlyDisplayedImage { get; set; }
 
@@ -94,11 +95,15 @@ public class DropImageViewModel : ViewModelBase
         DropImage = dropImage;
         UseDefaultImage = true;
 
+        // This service definition gets the DataContext of the MainWindow in order to get the ProjectSettingsViewModel.
+        // This is a direct, non-invasive way to ensure that all DropImageViewModels in the current view know which
+        // image should be displayed.
         var currentProjectSettingsViewModel = App.FetchService<ProjectSettingsViewModel>();
         currentProjectSettingsViewModel.WhenAnyValue(psvm => psvm.EnableCompiledTexturePreview)
             .Subscribe(newUsePreviewImage => UsePreviewImage = newUsePreviewImage);
 
         Settings = currentProjectSettingsViewModel.SettSettings;
+        currentProjectSettingsViewModel.RenderSettingChanged.Subscribe(_ => _UpdatePreviewImage());
 
         currentProjectSettingsViewModel.WhenAnyValue(psvm => psvm.SettSettings)
             .Skip(1)
@@ -119,7 +124,7 @@ public class DropImageViewModel : ViewModelBase
             .Subscribe(newImportedImage =>
             {
                 _UpdatePreviewImage();
-                
+
                 if (!UsePreviewImage)
                 {
                     CurrentlyDisplayedImage = ImportedImage;
@@ -141,10 +146,23 @@ public class DropImageViewModel : ViewModelBase
                 newUsePreviewImage => CurrentlyDisplayedImage = newUsePreviewImage ? PreviewImage : ImportedImage);
     }
 
+    /// <summary>
+    /// Generate the <see cref="PreviewImage"/> for this <see cref="DropImage"/>.
+    /// </summary>
     public void _UpdatePreviewImage()
     {
         this.RaisePropertyChanging(nameof(PreviewImage));
-        ConversionHelper.Render(DropImage, Settings);
+
+        // If not all Crunch operations are implemented, exceptions here will break the app.
+        try
+        {
+            ConversionHelper.Render(DropImage, Settings);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+
         this.RaisePropertyChanged(nameof(PreviewImage));
     }
 }
