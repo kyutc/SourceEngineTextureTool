@@ -75,6 +75,8 @@ public class TextureViewModel : ViewModelBase
 
     [Reactive] public ObservableCollection<MipmapViewModel> MipmapViewModels { get; set; }
 
+    [Reactive] public IObservable<bool> TextureIsReady { get; private set; }
+    
     public TextureViewModel(Texture? texture = null)
     {
         Texture = texture ?? new Texture();
@@ -121,6 +123,7 @@ public class TextureViewModel : ViewModelBase
                 }
 
                 _SetupPropagation();
+                _WatchForDropImagesToBeReady();
             });
 
         this.WhenAnyValue(tvm => tvm.GenerateMipmaps)
@@ -162,6 +165,7 @@ public class TextureViewModel : ViewModelBase
         MipmapCount = MipmapViewModels.Count;
 
         _SetupPropagation();
+        _WatchForDropImagesToBeReady();
     }
 
     private void _SetupPropagation()
@@ -176,5 +180,16 @@ public class TextureViewModel : ViewModelBase
             .ForEach(divms => _reactivePropertyPropagatorManager.InitializePropertyPropagationSequence(divms,
                 divm => divm.ImportedImage, divm => divm.DefaultImage)
             );
+    }
+
+    /// <summary>
+    /// Every time DropImages are added/removed from the view this instance needs to rebuild the observer that watches
+    /// for all those DropImages to be ready.
+    /// </summary>
+    private void _WatchForDropImagesToBeReady()
+    {
+        IList<IObservable<bool>> readinessObservables = MipmapViewModels.SelectMany(mvm =>
+            mvm.FrameViewModels.Select(fvm => fvm.DropImageViewModel.HasConvertedImage)).ToList();
+        TextureIsReady = readinessObservables.CombineLatest(values => values.All(value => value));
     }
 }

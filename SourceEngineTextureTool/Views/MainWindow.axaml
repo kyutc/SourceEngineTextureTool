@@ -155,7 +155,7 @@
                                           DataContext="{Binding ProjectSettingsViewModel}"
                                           IsChecked="{Binding EnableCompiledTexturePreview}"
                                           Content="Preview" />
-                            <Button Grid.Column="1" Name="Export" Content="Export" />
+                            <Button Grid.Column="1" Name="Export" Command="{Binding ExportVtfCommand}" Content="Export" />
                         </Grid>
                     </Border>
 

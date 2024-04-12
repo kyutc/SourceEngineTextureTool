@@ -90,10 +90,14 @@ public class DropImageViewModel : ViewModelBase
     /// </summary>
     [Reactive] public string? CurrentlyDisplayedImage { get; set; }
 
+    public IObservable<bool> HasConvertedImage { get; }
+    
     public DropImageViewModel(DropImage dropImage)
     {
         DropImage = dropImage;
         UseDefaultImage = true;
+        HasConvertedImage = this.WhenAnyValue(divm => divm.PreviewImage)
+            .Select(_ => DropImage.ConvertedImage is not null);
 
         // This service definition gets the DataContext of the MainWindow in order to get the ProjectSettingsViewModel.
         // This is a direct, non-invasive way to ensure that all DropImageViewModels in the current view know which
