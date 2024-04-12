@@ -42,8 +42,8 @@ public class MainWindowViewModel : ViewModelBase
         int faces = 1;
         int slices = 1;
         string[,,,] highResFiles = new string[mipmaps, frames, faces, slices];
-
-        for (int mipmap = mipmaps - 1; mipmap <= 0; mipmap++)
+        
+        for (int mipmap = 0; mipmap < mipmaps; mipmap++)
         {
             for (int frame = 0; frame < frames; frame++)
             {
@@ -51,8 +51,7 @@ public class MainWindowViewModel : ViewModelBase
                 {
                     for (int slice = 0; slice < slices; slice++)
                     {
-                        highResFiles[mipmap, frame, face, slice] =
-                            texture.Mipmaps[mipmap].Frames[frame].DropImage.ConvertedImage;
+                        highResFiles[mipmaps - mipmap - 1, frame, face, slice] = texture.Mipmaps[mipmap].Frames[frame].DropImage.ConvertedImage;
                     }
                 }
             }
