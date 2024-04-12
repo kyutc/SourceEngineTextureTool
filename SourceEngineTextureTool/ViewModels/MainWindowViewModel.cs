@@ -35,30 +35,33 @@ public class MainWindowViewModel : ViewModelBase
     public async void ExportVtfFile()
     {
         Texture texture = TextureViewModel.Texture;
-        Vtf vtfSettings = ProjectSettingsViewModel.VtfSettings; 
-        
-        int numberOfMipmaps = TextureViewModel.MipmapCount;
-        int numberOfFramesPerMipmap = TextureViewModel.FrameCount;
-        int numberOfFacesPerFrame = 1;
-        int numberOfSlicesPerFace = 1;
-        string[,,,] highResFiles = new string[numberOfMipmaps, numberOfFramesPerMipmap, numberOfFacesPerFrame, numberOfSlicesPerFace];
-        for (int mipmap = 0; mipmap < highResFiles.GetLength(0); mipmap++)
+        Vtf vtfSettings = ProjectSettingsViewModel.VtfSettings;
+
+        int mipmaps = TextureViewModel.MipmapCount;
+        int frames = TextureViewModel.FrameCount;
+        int faces = 1;
+        int slices = 1;
+        string[,,,] highResFiles = new string[mipmaps, frames, faces, slices];
+
+        for (int mipmap = mipmaps - 1; mipmap <= 0; mipmap++)
         {
-            for (int frame = 0; frame < highResFiles.GetLength(1); frame++)
+            for (int frame = 0; frame < frames; frame++)
             {
-                for (int face = 0; face < highResFiles.GetLength(2); face++)
+                for (int face = 0; face < faces; face++)
                 {
-                    for (int slice = 0; slice < highResFiles.GetLength(3); slice++)
+                    for (int slice = 0; slice < slices; slice++)
                     {
-                        highResFiles[mipmap, frame, face, slice] = texture.Mipmaps[mipmap].Frames[frame].DropImage.ConvertedImage;
+                        highResFiles[mipmap, frame, face, slice] =
+                            texture.Mipmaps[mipmap].Frames[frame].DropImage.ConvertedImage;
                     }
                 }
             }
         }
-        
+
         // Todo: Select a low res file
         string? lowResFile = null;
-        
-        var saveFileLocation = await App.FetchService<IFileDialogService>().SaveVtfFileDialogAsync(highResFiles, lowResFile, vtfSettings);
+
+        var saveFileLocation = await App.FetchService<IFileDialogService>()
+            .SaveVtfFileDialogAsync(highResFiles, lowResFile, vtfSettings);
     }
 }
