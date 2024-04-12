@@ -25,7 +25,7 @@ public class Texture
     /// <summary>
     /// Gets the collection of mipmaps for this <see cref="Texture"/>.
     /// </summary>
-    public IEnumerable<Mipmap> Mipmaps
+    public IReadOnlyList<Mipmap> Mipmaps
     {
         get => _mipmaps;
     }

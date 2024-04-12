@@ -24,7 +24,7 @@ public class Mipmap
 
     private Resolution _resolution;
 
-    public IEnumerable<Frame> Frames
+    public IReadOnlyList<Frame> Frames
     {
         get => _frames;
     }
