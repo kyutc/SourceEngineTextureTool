@@ -46,7 +46,7 @@
                             <!-- Image format -->
                             <Label Grid.Column="0" Grid.Row="1" Content="Image Format:" />
                             <ComboBox Grid.Column="1" Grid.Row="1"
-                                      ItemsSource="{Binding SupportedVTFImageFormats}"
+                                      ItemsSource="{Binding SupportedInputImageFormats}"
                                       SelectedItem="{Binding SelectedVtfImageFormat}"
                                       MaxDropDownHeight="300">
                                 <ComboBox.ItemTemplate>

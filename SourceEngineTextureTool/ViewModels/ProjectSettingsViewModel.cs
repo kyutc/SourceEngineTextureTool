@@ -73,9 +73,9 @@ public class ProjectSettingsViewModel : ViewModelBase
     /// <summary>
     /// Gets/sets the image format to use when converting input files to DDS.
     /// </summary>
-    [Reactive] public Vtf.Format SelectedVtfImageFormat { get; set; }
+    [Reactive] public Sett.VtfImageFormat SelectedVtfImageFormat { get; set; }
 
-    public IReadOnlyList<Vtf.Format> SupportedVTFImageFormats { get; } = Enums.GetValues<Vtf.Format>();
+    public IReadOnlyList<Sett.VtfImageFormat> SupportedInputImageFormats { get; } = Enums.GetValues<Sett.VtfImageFormat>();
 
     /// <summary>
     /// Gets the observable list of currently selected VTF flags.
@@ -120,6 +120,7 @@ public class ProjectSettingsViewModel : ViewModelBase
             SelectedPreviewMode = SettSettings.PreviewModeOption;
             SelectedScaleAlgorithm = SettSettings.ScaleAlgorithmOption;
             SelectedScaleMode = SettSettings.ScaleModeOption;
+            SelectedVtfImageFormat = SettSettings.VtfImageFormatOption;
         }
         
         var autocropModeObservable = this.WhenAnyValue(psvm => psvm.SelectedAutocropMode);
@@ -150,11 +151,15 @@ public class ProjectSettingsViewModel : ViewModelBase
             this.RaisePropertyChanged(nameof(SettSettings));
         });
         
+        var vtfImageFormatObservable = this.WhenAnyValue(psvm => psvm.SelectedVtfImageFormat);
+        vtfImageFormatObservable.Subscribe(newVtfImageFormat => SettSettings.VtfImageFormatOption = newVtfImageFormat);
+        
         RenderSettingChanged = Observable.Merge(
             autocropModeObservable.Select(_ => Unit.Default),
             previewModeObservable.Select(_ => Unit.Default),
             scaleAlgorithmObservable.Select(_ => Unit.Default),
-            scaleModeObservable.Select(_ => Unit.Default));
+            scaleModeObservable.Select(_ => Unit.Default),
+            vtfImageFormatObservable.Select(_ => Unit.Default));
         
         VtfSettings = vtfSettings ?? new();
         
@@ -162,7 +167,7 @@ public class ProjectSettingsViewModel : ViewModelBase
             .Subscribe(newVtfSettings =>
             {
                 SelectedVtfVersion = newVtfSettings.VtfVersion;
-                SelectedVtfImageFormat = newVtfSettings.FormatOption;
+                
                 SelectedVtfFlags = newVtfSettings.FlagsOption;
 
                 SelectedVtfFlagItemsSubscription?.Dispose();
@@ -193,7 +198,5 @@ public class ProjectSettingsViewModel : ViewModelBase
         this.WhenAnyValue(psvm => psvm.SelectedVtfVersion)
             .Subscribe(newVtfVersion => VtfSettings.VtfVersion = newVtfVersion);
 
-        this.WhenAnyValue(psvm => psvm.SelectedVtfImageFormat)
-            .Subscribe(newVtfImageFormat => VtfSettings.FormatOption = newVtfImageFormat);
     }
 }
