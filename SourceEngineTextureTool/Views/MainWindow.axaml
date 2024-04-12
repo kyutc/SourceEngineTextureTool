@@ -95,6 +95,9 @@
                             <Setter Property="Background" Value="#FF2B2B2B" />
                             <Setter Property="BorderBrush" Value="#33FFFFFF" />
                         </Style>
+                        <Style Selector="ListBox">
+                            <Setter Property="Background" Value="#FF2B2B2B" />
+                        </Style>
                     </Grid.Styles>
 
                     <!-- Texture properties -->
@@ -163,8 +166,7 @@
                             <ToggleButton Grid.Column="0"
                                           Name="Preview"
                                           DataContext="{Binding ProjectSettingsViewModel}"
-                                          IsChecked="{Binding EnableCompiledTexturePreview}"
-                                          Content="Preview" />
+                                          IsChecked="{Binding EnableCompiledTexturePreview}" />
                             <Button Grid.Column="1" Name="Export" Command="{Binding ExportVtfCommand}" Content="Export" />
                         </Grid>
                     </Border>
@@ -194,7 +196,9 @@
 
                     <Border Grid.Column="1" Grid.Row="1">
                         <ScrollViewer AllowAutoHide="False" HorizontalScrollBarVisibility="Auto">
-                            <v:TextureWorkspace DataContext="{Binding TextureViewModel}" />
+                            <v:TextureWorkspace 
+                                Background="#000000ff"
+                                DataContext="{Binding TextureViewModel}" />
                         </ScrollViewer>
                     </Border>
                 </Grid>
