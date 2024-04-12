@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
+using SourceEngineTextureTool.Models.Settings;
 
 namespace SourceEngineTextureTool.Services.IO;
 
@@ -9,4 +10,6 @@ namespace SourceEngineTextureTool.Services.IO;
 public interface IFileDialogService
 {
     public Task<IStorageFile?> OpenImageFileDialogAsync();
+
+    public Task<bool> SaveVtfFileDialogAsync(string [,,,] highResFiles, string? lowResFile, Vtf settings);
 }

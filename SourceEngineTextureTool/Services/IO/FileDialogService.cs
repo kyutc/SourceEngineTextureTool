@@ -4,6 +4,8 @@ using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using SourceEngineTextureTool.Models.Settings;
+using SourceEngineTextureTool.Services.Image;
 
 namespace SourceEngineTextureTool.Services.IO;
 
@@ -12,6 +14,24 @@ namespace SourceEngineTextureTool.Services.IO;
 /// </summary>
 public class FileDialogService : IFileDialogService
 {
+    public readonly Dictionary<string, FilePickerFileType> SupportedFileTypes = new()
+    {
+        // Supported image types are any that ImageMagick can process into a PNG.
+        ["Image"] = new FilePickerFileType("All Images")
+        {
+            Patterns = new[]
+                // Todo: Add any missing file types that we want to support
+                { "*.bmp", "*.gif", "*.jpg", "*.jpeg", "*.pdf", "*.png", "*.svg", "*.tga", "*.tiff", "*.webp" },
+            AppleUniformTypeIdentifiers = new[] { "public.image" },
+            MimeTypes = new[] { "image/*" }
+        },
+        
+        ["Vtf"] = new FilePickerFileType("Valve Texture Format")
+        {
+            Patterns = new[] { "*.vtf" },
+        }
+    };
+
     /// <summary>
     /// Opens a file dialog bound to the provided target <see cref="Window"/>
     /// </summary>
@@ -20,31 +40,38 @@ public class FileDialogService : IFileDialogService
     {
         _target = target;
         _defaultStartLocation = WellKnownFolder.Documents;
-        _fileFilterDict = new Dictionary<string, IReadOnlyList<FilePickerFileType>>()
-        {
-            ["Image"] = new[]
-            {
-                // Todo: Add more or define custom patterns. Doesn't match .tiff, webp, or other formats we may want to support
-                FilePickerFileTypes.ImageAll,
-            },
-        };
     }
 
     private readonly Window _target;
-    private Uri? _lastAccessedLocation;
+    private Uri? _lastOpenedFileLocation;
+    private Uri? _lastSavedFileLocation;
     private readonly WellKnownFolder _defaultStartLocation;
-    private readonly Dictionary<string, IReadOnlyList<FilePickerFileType>> _fileFilterDict;
 
     /// <summary>
     /// The last folder opened by this instance.
     /// </summary>
-    public Uri? LastAccessedLocation
+    public Uri? LastOpenedFileLocation
     {
-        get => _lastAccessedLocation;
+        get => _lastOpenedFileLocation;
         private set
         {
             string? openedDir = Path.GetDirectoryName(value?.AbsolutePath);
-            _lastAccessedLocation = openedDir is not null
+            _lastOpenedFileLocation = openedDir is not null
+                ? new Uri(openedDir)
+                : null;
+        }
+    }
+
+    /// <summary>
+    /// The last folder opened by this instance.
+    /// </summary>
+    public Uri? LastSavedFileLocation
+    {
+        get => _lastSavedFileLocation;
+        private set
+        {
+            string? openedDir = Path.GetDirectoryName(value?.AbsolutePath);
+            _lastSavedFileLocation = openedDir is not null
                 ? new Uri(openedDir)
                 : null;
         }
@@ -56,15 +83,15 @@ public class FileDialogService : IFileDialogService
     /// <returns>Path to image file or null if none selected.</returns>
     public async Task<IStorageFile?> OpenImageFileDialogAsync()
     {
-        var startLocation = LastAccessedLocation is not null
-            ? _target.StorageProvider.TryGetFolderFromPathAsync(LastAccessedLocation)
+        var startLocation = LastOpenedFileLocation is not null
+            ? _target.StorageProvider.TryGetFolderFromPathAsync(LastOpenedFileLocation)
             : _target.StorageProvider.TryGetWellKnownFolderAsync(_defaultStartLocation);
 
         var files = await _target.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
         {
             Title = "Select an Image Source",
             AllowMultiple = false,
-            FileTypeFilter = _fileFilterDict["Image"],
+            FileTypeFilter = [SupportedFileTypes["Image"]],
             SuggestedStartLocation = await startLocation
         });
 
@@ -73,12 +100,41 @@ public class FileDialogService : IFileDialogService
             var file = files[0];
 
             // Remember this file's location so we can open the dialog here next time.
-            LastAccessedLocation = file.Path;
+            LastOpenedFileLocation = file.Path;
 
             return file;
         }
 
         // No selection made
         return null;
+    }
+
+    public async Task<bool> SaveVtfFileDialogAsync(string [,,,] highResFiles, string? lowResFile, Vtf settings)
+    {
+        var startLocation = LastSavedFileLocation is not null
+            ? _target.StorageProvider.TryGetFolderFromPathAsync(LastSavedFileLocation)
+            : _target.StorageProvider.TryGetWellKnownFolderAsync(_defaultStartLocation);
+
+        var file = await _target.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions()
+        {
+            DefaultExtension = "vtf",
+            FileTypeChoices = [SupportedFileTypes["Vtf"]],
+            Title = "Save VTF file",
+            ShowOverwritePrompt = true,
+            SuggestedFileName = ".vtf",
+            SuggestedStartLocation = await startLocation
+        });
+
+        if (file is not null)
+        {
+            var tmpVtfFileLocation = VtfMaker.Make(highResFiles, lowResFile, settings);
+            if (File.Exists(tmpVtfFileLocation))
+            {
+                File.Move(tmpVtfFileLocation, file.Path.AbsolutePath);
+                return true;
+            }
+        }
+
+        return false;
     }
 }
