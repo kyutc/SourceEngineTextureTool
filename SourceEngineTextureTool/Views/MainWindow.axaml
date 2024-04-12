@@ -16,6 +16,11 @@
         <vm:MainWindowViewModel />
     </Design.DataContext>
 
+    <Window.Resources>
+        <SvgImage x:Key="Visible" Source="/Assets/visible-svgrepo-com.svg" />
+        <SvgImage x:Key="NotVisible" Source="/Assets/not-visible-svgrepo-com.svg" />
+    </Window.Resources>
+    
     <Window.Styles>
         <Style Selector="Menu.MenuBar">
             <Setter Property="Background" Value="#585858" />
@@ -79,7 +84,10 @@
                         <Style Selector="Button#Export">
                             <Setter Property="Background" Value="#ce2bff" />
                         </Style>
-                        <Style Selector="ToggleButton#Preview">
+                        <Style Selector="ToggleButton#Preview:checked > ContentPresenter">
+                            <Setter Property="Background" Value="#ce2bff" />
+                        </Style>
+                        <Style Selector="ToggleButton#Preview:unchecked">
                             <Setter Property="Background" Value="#6b008b" />
                         </Style>
                         <Style Selector="Label">
@@ -96,6 +104,9 @@
                             <Setter Property="BorderBrush" Value="#33FFFFFF" />
                         </Style>
                         <Style Selector="ListBox">
+                            <Setter Property="Background" Value="#FF2B2B2B" />
+                        </Style>
+                        <Style Selector="ComboBoxItem">
                             <Setter Property="Background" Value="#FF2B2B2B" />
                         </Style>
                     </Grid.Styles>
@@ -166,7 +177,17 @@
                             <ToggleButton Grid.Column="0"
                                           Name="Preview"
                                           DataContext="{Binding ProjectSettingsViewModel}"
-                                          IsChecked="{Binding EnableCompiledTexturePreview}" />
+                                          IsChecked="{Binding EnableCompiledTexturePreview}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Preview" Padding="0 0 10 0" />
+                                    <Image Source="{StaticResource NotVisible}"
+                                           Height="32" Width="32"
+                                           IsVisible="{Binding !#Preview.IsChecked}" />
+                                    <Image Source="{StaticResource Visible}"
+                                           Height="32" Width="32"
+                                           IsVisible="{Binding #Preview.IsChecked}" />
+                                </StackPanel>
+                            </ToggleButton>
                             <Button Grid.Column="1" Name="Export" Command="{Binding ExportVtfCommand}" Content="Export" />
                         </Grid>
                     </Border>
@@ -197,7 +218,7 @@
                     <Border Grid.Column="1" Grid.Row="1">
                         <ScrollViewer AllowAutoHide="False" HorizontalScrollBarVisibility="Auto">
                             <v:TextureWorkspace 
-                                Background="#000000ff"
+                                Background="#ff000000"
                                 DataContext="{Binding TextureViewModel}" />
                         </ScrollViewer>
                     </Border>
