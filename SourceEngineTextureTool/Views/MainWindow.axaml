@@ -85,6 +85,16 @@
                         <Style Selector="Label">
                             <Setter Property="Foreground" Value="#f6f6f6" />
                         </Style>
+                        <Style Selector="TabItem">
+                            <Setter Property="Foreground" Value="#f6f6f6" />
+                        </Style>
+                        <Style Selector="TextBlock">
+                            <Setter Property="Foreground" Value="#f6f6f6" />
+                        </Style>
+                        <Style Selector="TabItem Expander">
+                            <Setter Property="Background" Value="#FF2B2B2B" />
+                            <Setter Property="BorderBrush" Value="#33FFFFFF" />
+                        </Style>
                     </Grid.Styles>
 
                     <!-- Texture properties -->
