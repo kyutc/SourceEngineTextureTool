@@ -130,7 +130,7 @@ public class FileDialogService : IFileDialogService
             var tmpVtfFileLocation = VtfMaker.Make(highResFiles, lowResFile, settings);
             if (File.Exists(tmpVtfFileLocation))
             {
-                File.Move(tmpVtfFileLocation, file.Path.AbsolutePath);
+                File.Move(tmpVtfFileLocation, file.Path.AbsolutePath, true);
                 return true;
             }
         }
