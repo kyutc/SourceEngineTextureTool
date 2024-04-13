@@ -201,11 +201,11 @@
             <Border>
                 <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto,*">
                     <!-- x-axis label -->
-                    <Border Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Background="Blue">
+                    <Border Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Background="#CC000000">
                         <TextBlock Text="Frame" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <!-- y-axis label -->
-                    <Border Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Background="Green">
+                    <Border Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Background="#CC000000">
                         <LayoutTransformControl VerticalAlignment="Center">
                             <!-- Rotate the label text -->
                             <LayoutTransformControl.LayoutTransform>
@@ -216,10 +216,15 @@
                     </Border>
 
                     <Border Grid.Column="1" Grid.Row="1">
+                        <Border.Background>
+                            <ImageBrush
+                                AlignmentX="Left" AlignmentY="Top"
+                                Source="/Assets/checkerboard.png"
+                                TileMode="Tile"
+                                DestinationRect="0 0 32 32" />
+                        </Border.Background>
                         <ScrollViewer AllowAutoHide="False" HorizontalScrollBarVisibility="Auto">
-                            <v:TextureWorkspace 
-                                Background="#ff000000"
-                                DataContext="{Binding TextureViewModel}" />
+                            <v:TextureWorkspace DataContext="{Binding TextureViewModel}" />
                         </ScrollViewer>
                     </Border>
                 </Grid>

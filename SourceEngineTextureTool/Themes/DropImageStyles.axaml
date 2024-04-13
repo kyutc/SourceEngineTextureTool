@@ -35,6 +35,7 @@
                                                         Width="{Binding ImageWidth, RelativeSource={RelativeSource TemplatedParent}}" />
 
                         <Button x:Name="PART_Button"
+                                Background="#bf111111"
                                 HorizontalAlignment="Right" VerticalAlignment="Top">
                             <Image Source="{StaticResource ImportGlyph}" Width="30" Height="30" />
                         </Button>
@@ -57,7 +58,7 @@
                                                         Source="{TemplateBinding Source}" />
 
                         <Button x:Name="PART_Button"
-                                Background="Transparent"
+                                Background="#bf111111"
                                 HorizontalAlignment="Center" VerticalAlignment="Center"
                                 HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
                                 MinHeight="100"

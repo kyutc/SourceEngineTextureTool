@@ -16,13 +16,15 @@
                     <StackPanel Orientation="Horizontal">
 
                         <!-- Resolution label -->
-                        <LayoutTransformControl VerticalAlignment="Center">
-                            <LayoutTransformControl.LayoutTransform>
-                                <RotateTransform Angle="270" />
-                            </LayoutTransformControl.LayoutTransform>
-                            <TextBlock Text="{Binding MipmapResolution}" 
-                                       Padding="10 0"/>
-                        </LayoutTransformControl>
+                        <Border Background="#ff111111" VerticalAlignment="Stretch">
+                            <LayoutTransformControl>
+                                <LayoutTransformControl.LayoutTransform>
+                                    <RotateTransform Angle="270" />
+                                </LayoutTransformControl.LayoutTransform>
+                                <TextBlock Text="{Binding MipmapResolution}" 
+                                           Padding="10 0"/>
+                            </LayoutTransformControl>
+                        </Border>
 
                         <!-- Each mipmap is presented by splaying its frames across the row -->
                         <ItemsRepeater ItemsSource="{Binding  FrameViewModels}">
