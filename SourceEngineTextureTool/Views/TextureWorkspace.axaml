@@ -17,7 +17,7 @@
 
                         <!-- Resolution label -->
                         <Border Background="#ff111111" VerticalAlignment="Stretch">
-                            <LayoutTransformControl>
+                            <LayoutTransformControl VerticalAlignment="Center">
                                 <LayoutTransformControl.LayoutTransform>
                                     <RotateTransform Angle="270" />
                                 </LayoutTransformControl.LayoutTransform>
