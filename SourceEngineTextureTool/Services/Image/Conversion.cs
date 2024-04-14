@@ -82,12 +82,13 @@ public class CrunchOperation : Operation
 
 public static class Conversion
 {
-    private static readonly string BaseDir;
+    public static readonly string BaseDir;
     
     static Conversion()
     {
         var tmpdir = Directory.CreateTempSubdirectory("SETT_");
         BaseDir = tmpdir.FullName;
+        Console.WriteLine($"Created {BaseDir}");
     }
 
     public static void Run(string infile, ref string[]? outfiles, Operation[] tasks)

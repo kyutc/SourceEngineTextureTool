@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using Writer70 = SourceEngineTextureTool.Services.BinaryAccess.Vtf.v70.Writer;
@@ -16,7 +15,7 @@ namespace SourceEngineTextureTool.Services.Image;
 
 public static class VtfMaker
 {
-    private static readonly string BaseDir;
+    public static readonly string BaseDir;
     
     static VtfMaker()
     {
