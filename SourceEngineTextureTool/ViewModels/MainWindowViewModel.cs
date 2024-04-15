@@ -22,9 +22,18 @@ public class MainWindowViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// Initialize the workspace now that this viewmodel is attached to the top-level window. 
+    /// Initialize the workspace for working on a VTF.
     /// </summary>
     public void InitializeWorkspace()
+    {
+        // Todo: Open a dialog that queries whether the user wants to work on a texture, cubemap, spheremap, etc.
+        InitializeTextureWorkspace();
+    }
+
+    /// <summary>
+    /// Initialize the workspace now that this viewmodel is attached to the top-level window. 
+    /// </summary>
+    private void InitializeTextureWorkspace()
     {
         TextureViewModel = new();
         // Update the Command when the Texture's properties are modified.

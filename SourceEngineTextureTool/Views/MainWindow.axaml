@@ -20,7 +20,7 @@
         <SvgImage x:Key="Visible" Source="/Assets/visible-svgrepo-com.svg" />
         <SvgImage x:Key="NotVisible" Source="/Assets/not-visible-svgrepo-com.svg" />
     </Window.Resources>
-    
+
     <Window.Styles>
         <Style Selector="Menu.MenuBar">
             <Setter Property="Background" Value="#585858" />
@@ -44,7 +44,7 @@
                 </Style>
             </Menu.Styles>
             <MenuItem Header="File">
-                <MenuItem Header="New" />
+                <MenuItem Header="New" Command="{Binding InitializeWorkspace}" />
                 <Separator />
                 <MenuItem Header="Exit" />
             </MenuItem>
@@ -133,9 +133,9 @@
                                                        ParsingNumberStyle="Integer" />
                                     </StackPanel>
                                 </Grid>
-                                
+
                             </Border>
-                            
+
                             <Border>
                                 <Grid ColumnDefinitions="*,*">
                                     <StackPanel Grid.Column="0">
@@ -156,13 +156,14 @@
                             </Border>
                             <Border>
                                 <StackPanel>
-                                    <Label Content="Generate mipmaps from: "/>
+                                    <Label Content="Generate mipmaps from: " />
                                     <ComboBox Grid.Column="1"
                                               ItemsSource="{Binding SupportedPropagationStrategies}"
                                               SelectedItem="{Binding MipmapSourcePropagationStrategy}">
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate>
-                                                <TextBlock Text="{Binding ., Converter={StaticResource DisplayNameConverter}}" />
+                                                <TextBlock
+                                                    Text="{Binding ., Converter={StaticResource DisplayNameConverter}}" />
                                             </DataTemplate>
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
