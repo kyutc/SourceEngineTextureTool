@@ -21,6 +21,8 @@ public class MainWindowViewModel : ViewModelBase
         ProjectSettingsViewModel = new();
     }
 
+    #region File Commands
+
     /// <summary>
     /// Initialize the workspace for working on a VTF.
     /// </summary>
@@ -72,4 +74,7 @@ public class MainWindowViewModel : ViewModelBase
         var saveFileLocation = await App.FetchService<IFileDialogService>()
             .SaveVtfFileDialogAsync(highResFiles, lowResFile, vtfSettings);
     }
+
+    #endregion File Commands
+    
 }
