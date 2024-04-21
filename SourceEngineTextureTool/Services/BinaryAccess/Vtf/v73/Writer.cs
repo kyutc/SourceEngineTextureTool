@@ -74,6 +74,7 @@ public class Writer : v72.Writer
         }
         
         bw.Flush();
+        bw.Dispose();
     }
 
     protected void MakeResourceEntries(ref BinaryWriter bw)

@@ -32,6 +32,7 @@ public class Writer : Vtf
         bw.Write(HighResData);
         
         bw.Flush();
+        bw.Dispose();
     }
 
     protected override void MakeHeader(ref BinaryWriter bw)
