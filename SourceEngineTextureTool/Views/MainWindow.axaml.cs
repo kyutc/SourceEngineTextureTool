@@ -1,6 +1,4 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Data;
 using SourceEngineTextureTool.ViewModels;
 
 namespace SourceEngineTextureTool.Views;
@@ -38,8 +36,8 @@ public partial class MainWindow : Window
     /// </remarks>
     private void _SetUpResolutionControlsBindingWorkaround()
     {
-        TextureWidthControl.Bind(NumericUpDown.ValueProperty, new Binding(nameof(TextureViewModel.ResolutionWidth)));
-        TextureHeightControl.Bind(NumericUpDown.ValueProperty, new Binding(nameof(TextureViewModel.ResolutionHeight)));
-        TextureFrameCountControl.Bind(NumericUpDown.ValueProperty, new Binding(nameof(TextureViewModel.FrameCount)));
+        // TextureWidthControl.Bind(NumericUpDown.ValueProperty, new Binding(nameof(TextureViewModel.ResolutionWidth)));
+        // TextureHeightControl.Bind(NumericUpDown.ValueProperty, new Binding(nameof(TextureViewModel.ResolutionHeight)));
+        // TextureFrameCountControl.Bind(NumericUpDown.ValueProperty, new Binding(nameof(TextureViewModel.FrameCount)));
     }
 }
