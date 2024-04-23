@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:SourceEngineTextureTool.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="450"
              x:Class="SourceEngineTextureTool.Views.ProjectSettings"
              x:DataType="vm:MainWindowViewModel">
 
@@ -271,7 +271,7 @@
                         <DockPanel Grid.IsSharedSizeScope="True">
 
                             <Expander DockPanel.Dock="Top" Header="Texture Properties">
-                                <StackPanel>
+                                <StackPanel DataContext="{Binding ProjectSettingsViewModel}">
 
                                     <!-- Texture resolution -->
                                     <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
@@ -279,7 +279,7 @@
                                         <NumericUpDown Grid.Column="1" Grid.Row="0"
                                                        Name="TextureWidthControl"
                                                        ShowButtonSpinner="False"
-                                                       Value="512"
+                                                       Value="{Binding TextureWidth}"
                                                        Minimum="1" Maximum="65536"
                                                        Increment="1"
                                                        ParsingNumberStyle="Integer" />
@@ -288,7 +288,7 @@
                                         <NumericUpDown Grid.Column="1" Grid.Row="1"
                                                        Name="TextureHeightControl"
                                                        ShowButtonSpinner="False"
-                                                       Value="512"
+                                                       Value="{Binding TextureHeight}"
                                                        Minimum="1" Maximum="65536"
                                                        Increment="1"
                                                        ParsingNumberStyle="Integer" />
@@ -298,11 +298,11 @@
                                     <Separator Background="Transparent" />
 
                                     <Border>
-                                        <StackPanel DataContext="{Binding TextureViewModel}">
+                                        <StackPanel>
                                             <TextBlock Text="Generate initial mipmaps using" />
                                             <ComboBox
                                                 ItemsSource="{Binding SupportedPropagationStrategies}"
-                                                SelectedItem="{Binding MipmapSourcePropagationStrategy}">
+                                                SelectedItem="{Binding SelectedMipmapPropagationStrategy}">
                                                 <ComboBox.ItemTemplate>
                                                     <DataTemplate>
                                                         <TextBlock
@@ -456,11 +456,18 @@
                                 </Border>
                             </Expander>
 
-                            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Panel DockPanel.Dock="Top" DataContext="{Binding ProjectSettingsViewModel}">
                                 <!-- Todo: Add commands and implementation for applying/reverting settings -->
-                                <Button Name="RevertSettingsButton" Content="Revert" Classes="negative" />
-                                <Button Name="ApplySettingsButton" Content="Apply" />
-                            </StackPanel>
+                                <Button Name="RevertSettingsButton"
+                                        Command="{Binding RevertSettingsCommand}"
+                                        Content="Revert"
+                                        Classes="negative"
+                                         HorizontalAlignment="Left"/>
+                                <Button Name="ApplySettingsButton"
+                                        Command="{Binding ApplySettingsCommand}"
+                                        Content="Apply"
+                                         HorizontalAlignment="Right"/>
+                            </Panel>
 
                             <Border DockPanel.Dock="Top">
                                 <!-- A layout control fills up any remaining space in the dockpanel. The last item docked item  -->
