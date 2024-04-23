@@ -41,6 +41,9 @@ public class MainWindowViewModel : ViewModelBase
         // Update the Command when the Texture's properties are modified.
         TextureViewModel.WhenAnyValue(tvm => tvm.TextureIsReady)
             .Subscribe(observer => ExportVtfCommand = ReactiveCommand.Create(ExportVtfFile, observer));
+
+        // Todo: Avoid hardwiring references. 
+        ProjectSettingsViewModel.TextureViewModel = TextureViewModel;
     }
 
     public async void ExportVtfFile()

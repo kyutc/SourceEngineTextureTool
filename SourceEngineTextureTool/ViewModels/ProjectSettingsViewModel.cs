@@ -10,6 +10,7 @@ using EnumsNET;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using SourceEngineTextureTool.Models.Settings;
+using SourceEngineTextureTool.Services.Propagator;
 
 namespace SourceEngineTextureTool.ViewModels;
 
@@ -25,7 +26,18 @@ public class ProjectSettingsViewModel : ViewModelBase
     /// </summary>
     public Vtf VtfSettings { get; set; }
 
-    public IObservable<Unit> RenderSettingChanged { get; set; }
+    [Reactive] public TextureViewModel TextureViewModel { get; set; }
+
+    [Reactive] public int? TextureHeight { get; set; }
+    [Reactive] public int? TextureWidth { get; set; }
+
+    // Todo: replace with a MipamapGenerationStrategy enum
+    [Reactive] public PropagationStrategy SelectedMipmapPropagationStrategy { get; set; }
+
+    public static IReadOnlyList<PropagationStrategy> SupportedPropagationStrategies { get; } =
+        Enums.GetValues<PropagationStrategy>();
+
+    #endregion Texture Settings
 
     #region SETT Settings
 
