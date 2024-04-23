@@ -91,7 +91,7 @@ public class DropImageViewModel : ViewModelBase
     [Reactive] public string? CurrentlyDisplayedImage { get; set; }
 
     public IObservable<bool> HasConvertedImage { get; }
-    
+
     public DropImageViewModel(DropImage dropImage)
     {
         DropImage = dropImage;
@@ -106,13 +106,13 @@ public class DropImageViewModel : ViewModelBase
         currentProjectSettingsViewModel.WhenAnyValue(psvm => psvm.EnableCompiledTexturePreview)
             .Subscribe(newUsePreviewImage => UsePreviewImage = newUsePreviewImage);
 
-        // Listen for changes in the project settings
+        // When project settings are changed update the preview
         currentProjectSettingsViewModel.WhenAnyValue(psvm => psvm.SettSettings)
-            .Subscribe(newSettSettings => Settings = newSettSettings);
-
-        // Update the preview whenever project settings are changed
-        this.WhenAnyValue(divm => divm.Settings)
-            .Subscribe(_ => _UpdatePreviewImage());
+            .Subscribe(newSettSettings =>
+            {
+                Settings = newSettSettings;
+                _UpdatePreviewImage();
+            });
 
         this.WhenAnyValue(divm => divm.DefaultImage)
             .Skip(1)

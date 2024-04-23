@@ -129,17 +129,19 @@ public class ProjectSettingsViewModel : ViewModelBase
 
     #region Observables
 
+    public IObservable<Sett> SettSettingsObservable { get; set; }
+    
     private IObservable<bool> AnySettingsChangedObserverable { get; set; }
 
-    public IObservable<Sett.PreviewMode> PreviewModeObservable { get; set; }
-    public IObservable<TextureViewModel> TextureViewModelObserver { get; set; }
-    public IObservable<int?> TextureHeightObservable { get; set; }
-    public IObservable<int?> TextureWidthObservable { get; set; }
-    public IObservable<PropagationStrategy> MipmapPropagationStrategyObservable { get; set; }
-    public IObservable<Sett.AutocropMode> AutocropModeObservable { get; set; }
-    public IObservable<Sett.ScaleAlgorithm> ScaleAlgorithmObservable { get; set; }
-    public IObservable<Sett.ScaleMode> ScaleModeObservable { get; set; }
-    public IObservable<Sett.VtfImageFormat> VtfImageFormatObservable { get; set; }
+    private IObservable<Sett.PreviewMode> PreviewModeObservable { get; }
+    private IObservable<TextureViewModel> TextureViewModelObserver { get; }
+    private IObservable<int?> TextureHeightObservable { get; }
+    private IObservable<int?> TextureWidthObservable { get; }
+    private IObservable<PropagationStrategy> MipmapPropagationStrategyObservable { get; }
+    private IObservable<Sett.AutocropMode> AutocropModeObservable { get; }
+    private IObservable<Sett.ScaleAlgorithm> ScaleAlgorithmObservable { get; }
+    private IObservable<Sett.ScaleMode> ScaleModeObservable { get; }
+    private IObservable<Sett.VtfImageFormat> VtfImageFormatObservable { get; }
 
     #endregion Observables
 
@@ -160,7 +162,7 @@ public class ProjectSettingsViewModel : ViewModelBase
             SelectedScaleMode = SettSettings.ScaleModeOption;
             SelectedVtfImageFormat = SettSettings.VtfImageFormatOption;
         }
-
+        
         // Preview mode only determines which image the gui displays 
         PreviewModeObservable = this.WhenAnyValue(psvm => psvm.SelectedPreviewMode);
         PreviewModeObservable.Subscribe(newPreviewMode =>
@@ -168,29 +170,32 @@ public class ProjectSettingsViewModel : ViewModelBase
             SettSettings.PreviewModeOption = newPreviewMode;
             EnableCompiledTexturePreview = newPreviewMode == Sett.PreviewMode.Postprocessed;
         });
-
-        // This property isn't accessed by the view, but it should update its associated fields when its changed
-        TextureViewModelObserver = this.WhenAnyValue(psvm => psvm.TextureViewModel)
-            .Skip(1);
-        TextureViewModelObserver.Subscribe(newTextureViewModel =>
+        
+        // 
         {
-            TextureHeight = newTextureViewModel.TextureResolution.Height;
-            TextureWidth = newTextureViewModel.TextureResolution.Width;
-            SelectedMipmapPropagationStrategy = newTextureViewModel.MipmapSourcePropagationStrategy;
-        });
+            // This property isn't accessed by the view, but it should update its associated fields when its changed
+            TextureViewModelObserver = this.WhenAnyValue(psvm => psvm.TextureViewModel)
+                .Skip(1);
+            TextureViewModelObserver.Subscribe(newTextureViewModel =>
+            {
+                TextureHeight = newTextureViewModel.TextureResolution.Height;
+                TextureWidth = newTextureViewModel.TextureResolution.Width;
+                SelectedMipmapPropagationStrategy = newTextureViewModel.MipmapSourcePropagationStrategy;
+            });
 
-        TextureHeightObservable = this.WhenAnyValue(psvm => psvm.TextureHeight);
-        TextureWidthObservable = this.WhenAnyValue(psvm => psvm.TextureWidth);
+            TextureHeightObservable = this.WhenAnyValue(psvm => psvm.TextureHeight);
+            TextureWidthObservable = this.WhenAnyValue(psvm => psvm.TextureWidth);
 
-        MipmapPropagationStrategyObservable = this.WhenAnyValue(psvm => psvm.SelectedMipmapPropagationStrategy);
+            MipmapPropagationStrategyObservable = this.WhenAnyValue(psvm => psvm.SelectedMipmapPropagationStrategy);
 
-        AutocropModeObservable = this.WhenAnyValue(psvm => psvm.SelectedAutocropMode);
-        ScaleAlgorithmObservable = this.WhenAnyValue(psvm => psvm.SelectedScaleAlgorithm);
-        ScaleModeObservable = this.WhenAnyValue(psvm => psvm.SelectedScaleMode);
-        VtfImageFormatObservable = this.WhenAnyValue(psvm => psvm.SelectedVtfImageFormat);
-
-        // If a setting has been changed, the user should be able to apply or revert those changes.
-        _SetupApplyRevertCommands();
+            AutocropModeObservable = this.WhenAnyValue(psvm => psvm.SelectedAutocropMode);
+            ScaleAlgorithmObservable = this.WhenAnyValue(psvm => psvm.SelectedScaleAlgorithm);
+            ScaleModeObservable = this.WhenAnyValue(psvm => psvm.SelectedScaleMode);
+            VtfImageFormatObservable = this.WhenAnyValue(psvm => psvm.SelectedVtfImageFormat);
+        }
+        
+        SettSettingsObservable = this.WhenAnyValue(psvm => psvm.SettSettings);
+        SettSettingsObservable.Subscribe(_ => _SetupApplyRevertCommands());
 
         VtfSettings = vtfSettings ?? new();
 
@@ -230,6 +235,9 @@ public class ProjectSettingsViewModel : ViewModelBase
             .Subscribe(newVtfVersion => VtfSettings.VtfVersion = newVtfVersion);
     }
 
+    /// <summary>
+    /// When any setting is changed, give the user the option to apply or revert the changes
+    /// </summary>
     private void _SetupApplyRevertCommands()
     {
         // Create an observable that watches
@@ -268,15 +276,13 @@ public class ProjectSettingsViewModel : ViewModelBase
         }
         TextureViewModel.MipmapSourcePropagationStrategy = SelectedMipmapPropagationStrategy;
 
-        SettSettings.AutocropModeOption = SelectedAutocropMode;
-        SettSettings.ScaleAlgorithmOption = SelectedScaleAlgorithm;
-        SettSettings.ScaleModeOption = SelectedScaleMode;
-        SettSettings.VtfImageFormatOption = SelectedVtfImageFormat;
-
-        // Discard the old observable and replace with a fresh one
-        _SetupApplyRevertCommands();
-
-        this.RaisePropertyChanged(nameof(SettSettings));
+        SettSettings = new Sett()
+        {
+            AutocropModeOption = SelectedAutocropMode,
+            ScaleAlgorithmOption = SelectedScaleAlgorithm,
+            ScaleModeOption = SelectedScaleMode,
+            VtfImageFormatOption = SelectedVtfImageFormat
+        };
     }
 
     private void _RevertSettings()
