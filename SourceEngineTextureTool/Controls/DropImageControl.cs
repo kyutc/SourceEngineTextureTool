@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using AsyncImageLoader;
@@ -266,8 +265,7 @@ public partial class DropImageControl : TemplatedControl
             var file = await fileDialogService.OpenImageFileDialogAsync();
             if (file is null) return;
 
-            var path = Path.GetRelativePath(Directory.GetCurrentDirectory(),
-                file.Path.AbsolutePath); //new Uri(Directory.GetCurrentDirectory()).MakeRelativeUri(file.Path)
+            var path = Uri.UnescapeDataString(file.Path.AbsolutePath);
             var importedImage = importedImageRepository.GetImportedImageFromFile(path);
 
             string? oldImportedImage = ImportedImage;
