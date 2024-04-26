@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
 using DynamicData;
-using EnumsNET;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using SourceEngineTextureTool.Models;
@@ -18,47 +17,13 @@ public class TextureViewModel : ViewModelBase
 
     [Reactive] public Texture Texture { get; set; }
 
-    [Reactive] public Resolution TextureResolution { get; set; }
-
-    // Todo: Width and height should be modified at the same time. Impossible currently.
-    public int ResolutionWidth
+    public Resolution TextureResolution
     {
-        get => TextureResolution.Width;
-        set => TryUpdateTextureResolution(value, ResolutionHeight);
-    }
-
-    // Todo: Width and height should be modified at the same time. Impossible currently.
-    public int ResolutionHeight
-    {
-        get => TextureResolution.Height;
-        set => TryUpdateTextureResolution(ResolutionWidth, value);
-    }
-
-    /// <summary>
-    /// Attempt to assign a new <see cref="TextureResolution"/>
-    /// </summary>
-    /// <param name="width">A potentially invalid width value</param>
-    /// <param name="height">A potentially invalid height value</param>
-    /// <remarks>
-    /// The <see cref="Avalonia.Controls.NumericUpDown"/> control has a <code>decimal?</code> for it's value property.
-    /// A value is propagated every time the content of the control's text box changes (oddly, excluding when that value is 0 e.g.: 01 -> 0, unable to repeat in another project),
-    /// including when the content is empty/null. This throws an exception that breaks the application and generates ugly validation errors.
-    /// <see cref="https://github.com/AvaloniaUI/Avalonia/issues/10793"/>
-    /// Until a solution is implemented, this workaround attempts to set a new resolution. If an exception is thrown,
-    /// either null or an invalid value was provided, and nothing happens here.
-    /// </remarks>
-    public void TryUpdateTextureResolution(int? width, int? height)
-    {
-        if (width is not null && height is not null)
+        get => Texture.Resolution;
+        set
         {
-            try
-            {
-                Resolution newResolution = new(width.Value, height.Value);
-                TextureResolution = newResolution;
-            }
-            catch (ArgumentException e)
-            {
-            }
+            Texture.Resolution = value;
+            Refresh();
         }
     }
 
@@ -70,21 +35,19 @@ public class TextureViewModel : ViewModelBase
 
     [Reactive] public PropagationStrategy MipmapSourcePropagationStrategy { get; set; }
 
-    public static IReadOnlyList<PropagationStrategy> SupportedPropagationStrategies { get; } =
-        Enums.GetValues<PropagationStrategy>();
-
     [Reactive] public ObservableCollection<MipmapViewModel> MipmapViewModels { get; set; }
 
     [Reactive] public IObservable<bool> TextureIsReady { get; private set; }
     
     public TextureViewModel(Texture? texture = null)
     {
+        MipmapViewModels = new();
+        
         Texture = texture ?? new Texture();
         TextureResolution = Texture.Resolution;
         FrameCount = Texture.FrameCount;
         MipmapSourcePropagationStrategy = _reactivePropertyPropagatorManager.PropagationStrategy;
         GenerateMipmaps = MipmapSourcePropagationStrategy != PropagationStrategy.DoNotPropagate;
-        MipmapViewModels = new();
 
         this.WhenAnyValue(tvm => tvm.Texture)
             .Skip(1)
@@ -92,16 +55,6 @@ public class TextureViewModel : ViewModelBase
             {
                 TextureResolution = newTexture.Resolution;
                 FrameCount = newTexture.FrameCount;
-            });
-
-        this.WhenAnyValue(tvm => tvm.TextureResolution)
-            .Skip(1)
-            .Subscribe(textureResolution =>
-            {
-                Texture.Resolution = textureResolution;
-                this.RaisePropertyChanged(nameof(ResolutionWidth));
-                this.RaisePropertyChanged(nameof(ResolutionHeight));
-                Refresh();
             });
 
         this.WhenAnyValue(tvm => tvm.FrameCount)

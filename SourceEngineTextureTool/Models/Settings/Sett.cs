@@ -13,7 +13,7 @@ public class Sett
         Collate, // Ensure animation frames are "overlayed" before autocrop boundaries and determined
         NormalisedCollate,
     }
-    public AutocropMode AutocropModeOption = AutocropMode.Collate;
+    public AutocropMode AutocropModeOption = AutocropMode.None;
     
     public enum PreviewMode
     {
@@ -59,7 +59,7 @@ public class Sett
         IA88,
     }
 
-    public VtfImageFormat VtfImageFormatOption = VtfImageFormat.DXT5;
+    public VtfImageFormat VtfImageFormatOption = VtfImageFormat.DXT1;
 
     public byte Dxt1aAlphaThreshold = 128;
 

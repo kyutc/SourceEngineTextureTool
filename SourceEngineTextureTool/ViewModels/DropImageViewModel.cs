@@ -15,7 +15,7 @@ public class DropImageViewModel : ViewModelBase
     /// </summary>
     public DropImage DropImage { get; }
 
-    public Sett Settings { get; }
+    [Reactive] public Sett Settings { get; set; }
 
     public byte? MipmapOrder
     {
@@ -91,7 +91,7 @@ public class DropImageViewModel : ViewModelBase
     [Reactive] public string? CurrentlyDisplayedImage { get; set; }
 
     public IObservable<bool> HasConvertedImage { get; }
-    
+
     public DropImageViewModel(DropImage dropImage)
     {
         DropImage = dropImage;
@@ -106,12 +106,13 @@ public class DropImageViewModel : ViewModelBase
         currentProjectSettingsViewModel.WhenAnyValue(psvm => psvm.EnableCompiledTexturePreview)
             .Subscribe(newUsePreviewImage => UsePreviewImage = newUsePreviewImage);
 
-        Settings = currentProjectSettingsViewModel.SettSettings;
-        currentProjectSettingsViewModel.RenderSettingChanged.Subscribe(_ => _UpdatePreviewImage());
-
+        // When project settings are changed update the preview
         currentProjectSettingsViewModel.WhenAnyValue(psvm => psvm.SettSettings)
-            .Skip(1)
-            .Subscribe(_ => _UpdatePreviewImage());
+            .Subscribe(newSettSettings =>
+            {
+                Settings = newSettSettings;
+                _UpdatePreviewImage();
+            });
 
         this.WhenAnyValue(divm => divm.DefaultImage)
             .Skip(1)
@@ -140,7 +141,7 @@ public class DropImageViewModel : ViewModelBase
             {
                 if (UsePreviewImage)
                 {
-                    CurrentlyDisplayedImage = ImportedImage;
+                    CurrentlyDisplayedImage = PreviewImage;
                 }
             });
 

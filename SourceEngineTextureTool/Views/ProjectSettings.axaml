@@ -3,9 +3,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:SourceEngineTextureTool.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="450"
              x:Class="SourceEngineTextureTool.Views.ProjectSettings"
-             x:DataType="vm:ProjectSettingsViewModel">
+             x:DataType="vm:MainWindowViewModel">
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
@@ -13,138 +13,470 @@
         <vm:MainWindowViewModel />
     </Design.DataContext>
 
+    <UserControl.Resources>
+
+        <!-- Local colors -->
+        <Color x:Key="Primary">#ce2bff</Color>
+        <Color x:Key="PrimaryHighlight">#de79fc</Color>
+        <Color x:Key="PrimaryLowlight">#6b008b</Color>
+        <Color x:Key="PrimaryDiscreetLowlight">#6b008b</Color>
+
+        <!-- Simple theme color definition -->
+        <Color x:Key="ThemeBackgroundColor">#ff1c1c1c</Color>
+        <Color x:Key="ThemeBorderMidColor">#2b2b2b</Color>
+
+        <!-- Accentuating colors -->
+        <Color x:Key="AccentColor">#ce2bff</Color>
+        <Color x:Key="AccentColorDark1">#6b008b</Color>
+        <Color x:Key="AccentColorDark2">#6d3d78</Color>
+        <Color x:Key="AccentColorDark3">#4e4351</Color>
+        <Color x:Key="AccentColorLight1">#de79fc</Color>
+        <Color x:Key="AccentColorLight2">#c59ece</Color>
+        <Color x:Key="AccentColorLight3">#a686ad</Color>
+
+        <!-- Overrides -->
+
+        <!-- FluentTheme's Expander has a ExpanderMinHeight resource that it references when setting the minimum height -->
+        <!-- of its header. I cannot override this property with a style at runtime, but I can shadow the resource. -->
+        <x:Double x:Key="ExpanderMinHeight">18</x:Double>
+        <!-- <StreamGeometry x:Key="Plus">M4 12H20M12 4V20</StreamGeometry> -->
+        <!-- <StreamGeometry x:Key="Minus">M6 12H18</StreamGeometry> -->
+
+        <!-- Border resource overrides -->
+        <SolidColorBrush x:Key="ThemeBackgroundBrush" Color="{StaticResource ThemeBackgroundColor}" />
+        <SolidColorBrush x:Key="ThemeBorderMidBrush" Color="{StaticResource ThemeBorderMidColor}" />
+
+        <!-- ListBoxItem resource overrides -->
+        <SolidColorBrush x:Key="SystemControlHighlightListLowBrush">#de79fc</SolidColorBrush>
+        <SolidColorBrush x:Key="SystemControlHighlightAltBaseHighBrush">#f6f6f6</SolidColorBrush>
+        <SolidColorBrush x:Key="SystemControlHighlightListMediumBrush">#6b008b</SolidColorBrush>
+        <SolidColorBrush x:Key="SystemControlHighlightListAccentLowBrush">#6d3d78</SolidColorBrush>
+        <SolidColorBrush x:Key="SystemControlHighlightListAccentMediumBrush">#de79fc</SolidColorBrush>
+        <SolidColorBrush x:Key="SystemControlHighlightListAccentHighBrush">#6b008b</SolidColorBrush>
+
+        <!-- Checkbox resource overrides -->
+        <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillChecked" Color="{StaticResource AccentColor}" />
+        <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillCheckedPointerOver"
+                         Color="{StaticResource AccentColorDark3}" />
+        <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeCheckedPointerOver"
+                         Color="{StaticResource AccentColorDark3}" />
+        <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillUncheckedPressed" Color="{StaticResource AccentColorLight1}" />
+        <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillUncheckedPointerOver"
+                         Color="{StaticResource AccentColorLight2}" />
+        <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeUncheckedPointerOver"
+                         Color="{StaticResource AccentColorLight1}" />
+        <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillCheckedPressed" Color="{StaticResource AccentColorDark2}" />
+
+        <!-- Expander resource overrides -->
+        <SolidColorBrush x:Key="ExpanderHeaderBackgroundPointerOver" Color="{StaticResource AccentColorDark2}" />
+
+        <SolidColorBrush x:Key="SplitButtonBackgroundCheckedPointerOver"
+                         Color="{DynamicResource SystemAccentColorLight1}" />
+        <SolidColorBrush x:Key="SplitButtonBackgroundCheckedPressed" Color="{DynamicResource SystemAccentColorDark1}" />
+        <StaticResource x:Key="SplitButtonBackgroundCheckedDisabled" ResourceKey="SystemControlBackgroundBaseLowBrush" />
+
+        <!-- Textbox resource overrides -->
+        <SolidColorBrush x:Key="TextControlBorderBrushPointerOver">#6d3d78</SolidColorBrush>
+        <SolidColorBrush x:Key="TextControlBorderBrushFocused">#6b008b</SolidColorBrush>
+
+        <!-- Local defintitions -->
+
+        <SolidColorBrush x:Key="NegativeDefault">#808080</SolidColorBrush>
+        <SolidColorBrush x:Key="NegativeHover">#8f8f8f</SolidColorBrush>
+        <SolidColorBrush x:Key="NegativePress">#5c5c5c</SolidColorBrush>
+
+        <SolidColorBrush x:Key="FontColorDefault">#f6f6f6</SolidColorBrush>
+    </UserControl.Resources>
+
+    <UserControl.Styles>
+        <!-- Todo: Make static resources for UI colors -->
+        <Style Selector="Border">
+            <Setter Property="Background" Value="{StaticResource ThemeBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource ThemeBorderMidColor}" />
+
+        </Style>
+        <Style Selector="Button">
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="Background" Value="{StaticResource AccentColor}" />
+            <Setter Property="Foreground" Value="{StaticResource FontColorDefault}" />
+            <Setter Property="Padding" Value="10 5" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+
+            <Style Selector="^:pointerover > ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource AccentColorLight1}" />
+            </Style>
+            <Style Selector="^:pressed > ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource AccentColorDark1}" />
+            </Style>
+
+            <Style Selector="^.negative">
+                <Setter Property="Background" Value="{StaticResource NegativeDefault}" />
+                <Setter Property="Foreground" Value="{StaticResource FontColorDefault}" />
+            </Style>
+            <Style Selector="^.negative:pointerover > ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource NegativeHover}" />
+            </Style>
+            <Style Selector="^.negative:pressed > ContentPresenter">
+                <Setter Property="Background" Value="{StaticResource NegativePress}" />
+            </Style>
+        </Style>
+
+        <Style Selector="ListBox">
+            <Style Selector="^ /template/ CheckBox">
+                <Style Selector="^ Border#NormalRectangle">
+                    <Setter Property="BorderBrush" Value="{StaticResource NegativeDefault}" />
+                </Style>
+            </Style>
+        </Style>
+
+        <Style Selector="ComboBox">
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+
+            <Style Selector="^ ComboBoxItem">
+                <Setter Property="Background" Value="{StaticResource ThemeBorderMidBrush}" />
+            </Style>
+        </Style>
+
+
+        <Style Selector="Expander">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="{StaticResource ThemeBorderMidBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="IsExpanded" Value="True" />
+            <Setter Property="Padding" Value="10 " />
+
+            <Style Selector="^ ToggleButton#ExpanderHeader">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderBrush" Value="{StaticResource ThemeBorderMidBrush}" />
+                <Setter Property="FontSize" Value="18" />
+                <Setter Property="Margin" Value="0 5 0 0" />
+                <Setter Property="MinHeight" Value="0" />
+            </Style>
+        </Style>
+        <!-- Todo: Override expanded/collapsed animations before enabling -->
+        <!-- <Style Selector="Expander Path#ExpandCollapseChevron"> -->
+        <!--     <Setter Property="Data" Value="{StaticResource Plus}" /> -->
+        <!-- </Style> -->
+        <!-- <Style Selector="Expander:expanded Path#ExpandCollapseChevron"> -->
+        <!--     <Setter Property="Data" Value="{StaticResource Minus}" /> -->
+        <!-- </Style> -->
+
+        <!-- Todo: Won't be able to set the stroke of the path unless controls referencing ExpanderChevronForeground will update when it is changed. -->
+        <!-- <Style Selector="Expander Path#ExpandCollapseChevron"> -->
+        <!--     <Setter Property="Stroke" Value="{StaticResource PositiveDefault}" /> -->
+        <!-- </Style> -->
+        <!-- <Style Selector="Expander:expanded Path#ExpandCollapseChevron"> -->
+        <!--     <Setter Property="Stroke" Value="{StaticResource NegativeDefault}" /> -->
+        <!-- </Style> -->
+
+        <Style Selector="ListBox">
+            <Setter Property="Background" Value="{StaticResource ThemeBorderMidBrush}" />
+        </Style>
+
+        <Style Selector="TabItem">
+            <Setter Property="Padding" Value="5 0" />
+        </Style>
+        <Style Selector="TabItem:not(:selected) TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource NegativeDefault}" />
+        </Style>
+        <Style Selector="TabItem:selected Border#PART_SelectedPipe">
+            <Setter Property="Background" Value="{StaticResource AccentColor}" />
+        </Style>
+        <Style Selector="TabItem > TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource FontColorDefault}" />
+            <Setter Property="FontSize" Value="18" />
+        </Style>
+
+        <Style Selector="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource FontColorDefault}" />
+        </Style>
+    </UserControl.Styles>
+
     <Border>
         <TabControl>
-            <!-- Texture settings Todo: Set the width of the combobox to the width of the (open) popup w/ the greatest width -->
-            <TabItem Header="Settings">
-                <TabItem.Styles>
-                    <Style Selector="Expander">
-                        <Setter Property="HorizontalAlignment" Value="Stretch" />
-                        <Setter Property="IsExpanded" Value="True" />
-                    </Style>
-                </TabItem.Styles>
-                <Grid RowDefinitions="Auto,Auto,*">
+            <TabItem Header="Project">
+                <DockPanel>
 
-                    <!-- Vtf settings -->
-                    <Expander Grid.Row="0">
-                        <Expander.Header>
-                            VTF Properties
-                        </Expander.Header>
-                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
-                            <!-- VTF Version Selector -->
-                            <Label Grid.Column="0" Grid.Row="0" Content="Version:" />
-                            <ComboBox Grid.Column="1" Grid.Row="0"
-                                      ItemsSource="{Binding SupportedVTFVersions}"
-                                      SelectedItem="{Binding SelectedVtfVersion}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding ., Converter={StaticResource DisplayNameConverter}}" />
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
+                    <!-- VTF options -->
+                    <Expander DockPanel.Dock="Top" Header="VTF">
+                        <Grid RowDefinitions="Auto,*,Auto">
 
-                            <!-- Image format -->
-                            <Label Grid.Column="0" Grid.Row="1" Content="Image Format:" />
-                            <ComboBox Grid.Column="1" Grid.Row="1"
-                                      ItemsSource="{Binding SupportedInputImageFormats}"
-                                      SelectedItem="{Binding SelectedVtfImageFormat}"
-                                      MaxDropDownHeight="300">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding }" />
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
+                            <!-- VTF Version -->
+                            <Expander Grid.Row="0" Header="Version"
+                                      DataContext="{Binding ProjectSettingsViewModel}">
+                                <Border>
+                                    <ComboBox Name="VtfVersionComboBox"
+                                              ItemsSource="{Binding SupportedVTFVersions}"
+                                              SelectedItem="{Binding SelectedVtfVersion}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock
+                                                    Text="{Binding ., Converter={StaticResource DisplayNameConverter}}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </Border>
+                            </Expander>
+
+                            <!-- VTF Flags -->
+                            <Expander Grid.Row="1" Header="Flags" DataContext="{Binding ProjectSettingsViewModel}">
+                                <ListBox Name="VtfFlagsListBox"
+                                         ItemsSource="{Binding OptionalVTFFlags}"
+                                         AutoScrollToSelectedItem="True"
+                                         SelectedItems="{Binding SelectedVtfFlagItems}"
+                                         SelectionMode="Multiple,Toggle">
+                                    <ListBox.Styles>
+                                        <Style Selector="ListBoxItem">
+                                            <Setter Property="Cursor" Value="Hand" />
+                                            <Setter Property="Padding" Value="12 9 18 0" />
+                                        </Style>
+                                    </ListBox.Styles>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding ., Converter={StaticResource DisplayNameConverter}}" />
+                                                <CheckBox Grid.Column="1"
+                                                          IsChecked="{Binding $parent[ListBoxItem].IsSelected}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Expander>
+
+                            <StackPanel Grid.Row="2">
+                                <!-- Todo: Support importing a VTF -->
+                                <!-- <Button Name="ImportVtf" Command="{Binding ExportVtfCommand}" Content="Export" /> -->
+                                <Button Name="ExportVtf"
+                                        Command="{Binding ExportVtfCommand}"
+                                        Content="Export" />
+                            </StackPanel>
+
                         </Grid>
                     </Expander>
 
-                    <!-- SETT application settings -->
-                    <Expander Grid.Row="1">
-                        <Expander.Header>
-                            Application Options
-                        </Expander.Header>
+                    <Border DockPanel.Dock="Top" />
 
-                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto">
-
-                            <!-- Texture autocrop method -->
-                            <Label Grid.Column="0" Grid.Row="0" Content="Autocrop Mode: " />
-                            <ComboBox Grid.Column="1" Grid.Row="0"
-                                      ItemsSource="{Binding  SupportedAutocropModes}"
-                                      SelectedItem="{Binding SelectedAutocropMode}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding}" />
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-
-                            <!-- Texture preview technique -->
-                            <Label Grid.Column="0" Grid.Row="1" Content="Preview mode: " />
-                            <ComboBox Grid.Column="1" Grid.Row="1"
-                                      ItemsSource="{Binding  SupportedPreviewModes}"
-                                      SelectedItem="{Binding SelectedPreviewMode}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding}" />
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-
-                            <!-- Image scale mode -->
-                            <Label Grid.Column="0" Grid.Row="2" Content="Scale Mode:" />
-                            <ComboBox Grid.Column="1" Grid.Row="2"
-                                      ItemsSource="{Binding  SupportedScaleModes}"
-                                      SelectedItem="{Binding SelectedScaleMode}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding}" />
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-
-                            <!-- Image scale algorithm -->
-                            <Label Grid.Column="0" Grid.Row="3" Content="Scaling Algorithm: " />
-                            <ComboBox Grid.Column="1" Grid.Row="3"
-                                      ItemsSource="{Binding  SupportedScaleAlgorithms}"
-                                      SelectedItem="{Binding SelectedScaleAlgorithm}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding}" />
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-
-                        </Grid>
-
-                    </Expander>
-
-                </Grid>
+                </DockPanel>
             </TabItem>
 
-            <TabItem Header="VTF Flags">
-                <!-- Optional VTF Flags -->
-                <ListBox Name="VtfFlagsListBox"
-                         ItemsSource="{Binding OptionalVTFFlags}"
-                         SelectedItems="{Binding SelectedVtfFlagItems}"
-                         SelectionMode="Multiple,Toggle"
-                         AutoScrollToSelectedItem="True">
-                    <ListBox.Styles>
-                        <Style Selector="ListBoxItem">
-                            <Setter Property="Cursor" Value="Hand" />
-                        </Style>
-                    </ListBox.Styles>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Panel HorizontalAlignment="Stretch">
-                                <TextBlock Text="{Binding ., Converter={StaticResource DisplayNameConverter}}" />
-                                <!-- Todo: Override ListBox theme to fix scrollbar overlapping list items -->
-                                <CheckBox IsChecked="{Binding $parent[ListBoxItem].IsSelected}"
-                                          HorizontalAlignment="Right"
-                                          Padding="0 0 20 0" />
+            <TabItem Header="Workspace">
+                <ScrollViewer>
+                    <Grid RowDefinitions="*,Auto">
+                        <!-- Dockpanel makes it easier to add/remove/change the order of existing controls. -->
+                        <!-- It also sizes itself to the available space, which is a constraint for ScrollViewer to work -->
+                        <!-- The IsSharedSizeScope property allows independent Grid layouts to share column/row sizes -->
+                        <DockPanel Grid.IsSharedSizeScope="True">
+
+                            <Expander DockPanel.Dock="Top" Header="Texture Properties">
+                                <StackPanel DataContext="{Binding ProjectSettingsViewModel}">
+
+                                    <!-- Texture resolution -->
+                                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
+                                        <TextBlock Grid.Column="0" Grid.Row="0" Text="Width" />
+                                        <NumericUpDown Grid.Column="1" Grid.Row="0"
+                                                       Name="TextureWidthControl"
+                                                       ShowButtonSpinner="False"
+                                                       Value="{Binding TextureWidth}"
+                                                       Minimum="1" Maximum="65536"
+                                                       Increment="1"
+                                                       ParsingNumberStyle="Integer" />
+
+                                        <TextBlock Grid.Column="0" Grid.Row="1" Text="Height" />
+                                        <NumericUpDown Grid.Column="1" Grid.Row="1"
+                                                       Name="TextureHeightControl"
+                                                       ShowButtonSpinner="False"
+                                                       Value="{Binding TextureHeight}"
+                                                       Minimum="1" Maximum="65536"
+                                                       Increment="1"
+                                                       ParsingNumberStyle="Integer" />
+
+                                    </Grid>
+
+                                    <Separator Background="Transparent" />
+
+                                    <Border>
+                                        <StackPanel>
+                                            <TextBlock Text="Generate initial mipmaps using" />
+                                            <ComboBox
+                                                ItemsSource="{Binding SupportedPropagationStrategies}"
+                                                SelectedItem="{Binding SelectedMipmapPropagationStrategy}">
+                                                <ComboBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock
+                                                            Text="{Binding ., Converter={StaticResource DisplayNameConverter}}" />
+                                                    </DataTemplate>
+                                                </ComboBox.ItemTemplate>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </Border>
+
+                                </StackPanel>
+                            </Expander>
+
+                            <!-- Texture Data -->
+                            <Expander DockPanel.Dock="Top" Header="Texture Data">
+                                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto"
+                                      DataContext="{Binding TextureViewModel}">
+
+                                    <Border Grid.Column="0" Grid.Row="0">
+                                        <!-- Total frames -->
+                                        <StackPanel>
+                                            <TextBlock Text="Frames" />
+                                            <NumericUpDown x:Name="TextureFrameCountControl"
+                                                           Value="{Binding FrameCount}"
+                                                           Minimum="1" Maximum="65536"
+                                                           Increment="1"
+                                                           ParsingNumberStyle="Integer" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Grid.Column="1" Grid.Row="0">
+                                        <!-- Total Mipmaps -->
+                                        <StackPanel>
+                                            <TextBlock Text="Mipmaps" />
+                                            <StackPanel Orientation="Horizontal">
+                                                <Label Content="{Binding MipmapCount}" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Todo: Awaiting Face/Slice support -->
+                                    <!-- <Border Grid.Column="0" Grid.Row="1"> -->
+                                    <!--     ~1~ Total faces @1@ -->
+                                    <!--     <StackPanel> -->
+                                    <!--         <Label Content="Faces" /> -->
+                                    <!--         <NumericUpDown x:Name="TextureFaceCountControl" -->
+                                    <!--                        IsEnabled="False" -->
+                                    <!--                        Value="{Binding FrameCount}" -->
+                                    <!--                        Minimum="1" Maximum="65536" -->
+                                    <!--                        Increment="1" -->
+                                    <!--                        ParsingNumberStyle="Integer" /> -->
+                                    <!--     </StackPanel> -->
+                                    <!-- </Border> -->
+                                    <!-- -->
+                                    <!-- <Border Grid.Column="1" Grid.Row="1"> -->
+                                    <!--     ~1~ Total slices @1@ -->
+                                    <!--     <StackPanel> -->
+                                    <!--         <Label Content="Slices" /> -->
+                                    <!--         <NumericUpDown x:Name="TextureSliceCountControl" -->
+                                    <!--                        IsEnabled="False" -->
+                                    <!--                        Value="{Binding FrameCount}" -->
+                                    <!--                        Minimum="1" Maximum="65536" -->
+                                    <!--                        Increment="1" -->
+                                    <!--                        ParsingNumberStyle="Integer" /> -->
+                                    <!--     </StackPanel> -->
+                                    <!-- </Border> -->
+
+                                </Grid>
+                            </Expander>
+
+                            <!-- Image Processing selectors -->
+
+                            <Expander DockPanel.Dock="Top" Name="ImageProcessingExpander" Header="Image Processing">
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto">
+                                    <Grid.Styles>
+                                        <!-- Padding so the text isn't hugging the combo box -->
+                                        <Style Selector="TextBlock">
+                                            <Setter Property="Padding" Value="0 0 20 0" />
+                                        </Style>
+                                    </Grid.Styles>
+
+                                    <!-- Image data format -->
+                                    <TextBlock Grid.Column="0" Grid.Row="0" Text="Image Data Format" />
+                                    <ComboBox Grid.Column="1" Grid.Row="0"
+                                              DataContext="{Binding ProjectSettingsViewModel}"
+                                              HorizontalAlignment="Stretch"
+                                              ItemsSource="{Binding SupportedInputImageFormats}"
+                                              SelectedItem="{Binding SelectedVtfImageFormat}"
+                                              MaxDropDownHeight="300">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding }" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+
+                                    <!-- Texture autocrop method -->
+                                    <TextBlock Grid.Column="0" Grid.Row="1" Text="Autocrop Mode" />
+                                    <ComboBox Grid.Column="1" Grid.Row="1"
+                                              DataContext="{Binding ProjectSettingsViewModel}"
+                                              ItemsSource="{Binding  SupportedAutocropModes}"
+                                              SelectedItem="{Binding SelectedAutocropMode}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+
+                                    <!-- Image scale mode -->
+                                    <TextBlock Grid.Column="0" Grid.Row="2" Text="Scale Mode" />
+                                    <ComboBox Grid.Column="1" Grid.Row="2"
+                                              DataContext="{Binding ProjectSettingsViewModel}"
+                                              ItemsSource="{Binding  SupportedScaleModes}"
+                                              SelectedItem="{Binding SelectedScaleMode}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+
+                                    <!-- Image scale algorithm -->
+                                    <TextBlock Grid.Column="0" Grid.Row="3" Text="Scaling Algorithm" />
+                                    <ComboBox Grid.Column="1" Grid.Row="3"
+                                              DataContext="{Binding ProjectSettingsViewModel}"
+                                              ItemsSource="{Binding  SupportedScaleAlgorithms}"
+                                              SelectedItem="{Binding SelectedScaleAlgorithm}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+
+                                </Grid>
+                            </Expander>
+
+                            <Expander DockPanel.Dock="Top" Header="Preview">
+                                <Border DataContext="{Binding ProjectSettingsViewModel}">
+
+                                    <ComboBox ItemsSource="{Binding  SupportedPreviewModes}"
+                                              SelectedItem="{Binding SelectedPreviewMode}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+
+                                </Border>
+                            </Expander>
+
+                            <Panel DockPanel.Dock="Top" DataContext="{Binding ProjectSettingsViewModel}">
+                                <!-- Todo: Add commands and implementation for applying/reverting settings -->
+                                <Button Name="RevertSettingsButton"
+                                        Command="{Binding RevertSettingsCommand}"
+                                        Content="Revert"
+                                        Classes="negative"
+                                         HorizontalAlignment="Left"/>
+                                <Button Name="ApplySettingsButton"
+                                        Command="{Binding ApplySettingsCommand}"
+                                        Content="Apply"
+                                         HorizontalAlignment="Right"/>
                             </Panel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+
+                            <Border DockPanel.Dock="Top">
+                                <!-- A layout control fills up any remaining space in the dockpanel. The last item docked item  -->
+                                <!-- is vertically centered in whatever space is left, and that looks ugly when it's an Expander.-->
+                            </Border>
+
+                        </DockPanel>
+                    </Grid>
+                </ScrollViewer>
             </TabItem>
         </TabControl>
     </Border>

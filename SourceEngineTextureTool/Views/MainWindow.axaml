@@ -16,17 +16,9 @@
         <vm:MainWindowViewModel />
     </Design.DataContext>
 
-    <Window.Resources>
-        <SvgImage x:Key="Visible" Source="/Assets/visible-svgrepo-com.svg" />
-        <SvgImage x:Key="NotVisible" Source="/Assets/not-visible-svgrepo-com.svg" />
-    </Window.Resources>
-
     <Window.Styles>
         <Style Selector="Menu.MenuBar">
             <Setter Property="Background" Value="#585858" />
-        </Style>
-        <Style Selector="Grid.SideBar">
-            <Setter Property="Background" Value="#1c1c1c" />
         </Style>
 
     </Window.Styles>
@@ -60,144 +52,13 @@
         </Menu>
 
         <!-- Main content -->
-        <SplitView Grid.Row="1" IsPaneOpen="True" DisplayMode="Inline" OpenPaneLength="300">
+        <SplitView Grid.Row="1" IsPaneOpen="True" DisplayMode="Inline">
 
             <!-- Sidebar container -->
             <SplitView.Pane>
                 <!-- Sidebar -->
                 <!-- Todo: resize pane length to widest child or wrap sidebar with viewbox -->
-                <Grid Classes="SideBar" RowDefinitions="Auto,Auto,*">
-
-                    <!-- Sidebar styles -->
-                    <Grid.Styles>
-                        <Style Selector="Grid > Border">
-                            <Setter Property="BorderThickness" Value="1" />
-                            <Setter Property="BorderBrush" Value="#2b2b2b" />
-                            <Setter Property="Padding" Value="10 5" />
-                        </Style>
-
-                        <Style Selector="Button,ToggleButton">
-                            <Setter Property="FontSize" Value="20" />
-                            <Setter Property="Foreground" Value="#f6f6f6" />
-                            <Setter Property="Padding" Value="10 5" />
-                            <Setter Property="HorizontalAlignment" Value="Stretch" />
-                            <Setter Property="HorizontalContentAlignment" Value="Center" />
-                        </Style>
-                        <Style Selector="Button#Export">
-                            <Setter Property="Background" Value="#ce2bff" />
-                        </Style>
-                        <Style Selector="ToggleButton#Preview:checked > ContentPresenter">
-                            <Setter Property="Background" Value="#ce2bff" />
-                        </Style>
-                        <Style Selector="ToggleButton#Preview:unchecked">
-                            <Setter Property="Background" Value="#6b008b" />
-                        </Style>
-                        <Style Selector="Label">
-                            <Setter Property="Foreground" Value="#f6f6f6" />
-                        </Style>
-                        <Style Selector="TabItem">
-                            <Setter Property="Foreground" Value="#f6f6f6" />
-                        </Style>
-                        <Style Selector="TextBlock">
-                            <Setter Property="Foreground" Value="#f6f6f6" />
-                        </Style>
-                        <Style Selector="TabItem Expander">
-                            <Setter Property="Background" Value="#FF2B2B2B" />
-                            <Setter Property="BorderBrush" Value="#33FFFFFF" />
-                        </Style>
-                        <Style Selector="ListBox">
-                            <Setter Property="Background" Value="#FF2B2B2B" />
-                        </Style>
-                        <Style Selector="ComboBoxItem">
-                            <Setter Property="Background" Value="#FF2B2B2B" />
-                        </Style>
-                    </Grid.Styles>
-
-                    <!-- Texture properties -->
-                    <Border Grid.Row="0" DataContext="{Binding TextureViewModel}">
-                        <StackPanel>
-                            <Border>
-                                <Grid ColumnDefinitions="*,*">
-                                    <StackPanel Grid.Column="0">
-                                        <Label Content="Res X" />
-                                        <NumericUpDown x:Name="TextureWidthControl"
-                                                       Value="{Binding ResolutionWidth}"
-                                                       Minimum="1" Maximum="65536"
-                                                       Increment="1"
-                                                       ParsingNumberStyle="Integer" />
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1">
-                                        <Label Content="Res Y" />
-                                        <NumericUpDown x:Name="TextureHeightControl"
-                                                       Value="{Binding ResolutionHeight}"
-                                                       Minimum="1" Maximum="65536"
-                                                       Increment="1"
-                                                       ParsingNumberStyle="Integer" />
-                                    </StackPanel>
-                                </Grid>
-
-                            </Border>
-
-                            <Border>
-                                <Grid ColumnDefinitions="*,*">
-                                    <StackPanel Grid.Column="0">
-                                        <Label Content="Frames" />
-                                        <NumericUpDown x:Name="TextureFrameCountControl"
-                                                       Value="{Binding FrameCount}"
-                                                       Minimum="1" Maximum="65536"
-                                                       Increment="1"
-                                                       ParsingNumberStyle="Integer" />
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1">
-                                        <Label Content="Mipmaps" />
-                                        <StackPanel Orientation="Horizontal">
-                                            <Label Content="{Binding MipmapCount}" />
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                            <Border>
-                                <StackPanel>
-                                    <Label Content="Generate mipmaps from: " />
-                                    <ComboBox Grid.Column="1"
-                                              ItemsSource="{Binding SupportedPropagationStrategies}"
-                                              SelectedItem="{Binding MipmapSourcePropagationStrategy}">
-                                        <ComboBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <TextBlock
-                                                    Text="{Binding ., Converter={StaticResource DisplayNameConverter}}" />
-                                            </DataTemplate>
-                                        </ComboBox.ItemTemplate>
-                                    </ComboBox>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Export Actions -->
-                    <Border Grid.Row="1">
-                        <Grid ColumnDefinitions="*,*">
-                            <ToggleButton Grid.Column="0"
-                                          Name="Preview"
-                                          DataContext="{Binding ProjectSettingsViewModel}"
-                                          IsChecked="{Binding EnableCompiledTexturePreview}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Preview" Padding="0 0 10 0" />
-                                    <Image Source="{StaticResource NotVisible}"
-                                           Height="32" Width="32"
-                                           IsVisible="{Binding !#Preview.IsChecked}" />
-                                    <Image Source="{StaticResource Visible}"
-                                           Height="32" Width="32"
-                                           IsVisible="{Binding #Preview.IsChecked}" />
-                                </StackPanel>
-                            </ToggleButton>
-                            <Button Grid.Column="1" Name="Export" Command="{Binding ExportVtfCommand}" Content="Export" />
-                        </Grid>
-                    </Border>
-
-                    <v:ProjectSettings Grid.Row="2"
-                                       DataContext="{Binding ProjectSettingsViewModel}" />
-                </Grid>
+                <v:ProjectSettings Grid.Row="2" />
             </SplitView.Pane>
 
             <!-- Texture Workspace -->
